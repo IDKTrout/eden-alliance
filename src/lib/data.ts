@@ -128,6 +128,11 @@ const expRows: ExpRow[] = parseCsv(expeditionsCsv)
   }));
 
 const seasonNum = (id: string) => Number(id.replace(/\D/g, '')) || 0;
+
+/** Expedition data before this season may not be accurate; those pages carry a note. */
+export const ACCURATE_FROM = 13;
+export const mayBeInaccurate = (id: string) => seasonNum(id) < ACCURATE_FROM;
+export const ACCURACY_NOTE = `Seasons before ${ACCURATE_FROM} may not be accurate.`;
 export const expeditionIds = [...new Set(expRows.map((r) => r.expedition))].sort((a, b) => seasonNum(a) - seasonNum(b));
 export const currentExpedition =
   settings.current_expedition && expeditionIds.includes(settings.current_expedition.toUpperCase())

@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
-import { guilds, guildHistory, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, type Guild } from '../../lib/data';
+import { guilds, guildHistory, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, type Guild } from '../../lib/data';
 
 export function getStaticPaths() {
   return guilds.map((g) => ({ params: { id: g.id }, props: { g } }));
@@ -52,6 +52,7 @@ const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
   {history.length > 0 && (
     <section class="card">
       <h2>Expedition history</h2>
+      <p class="muted small">{ACCURACY_NOTE}</p>
       <div class="table-wrap"><table class="data">
         <thead><tr><th>Expedition</th><th class="num">Players</th><th>Main map</th><th>Main league</th><th class="num">Entered</th></tr></thead>
         <tbody>
