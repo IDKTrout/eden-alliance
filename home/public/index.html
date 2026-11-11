@@ -8,6 +8,12 @@
   <meta property="og:title" content="Eden" />
   <meta property="og:description" content="The Eden Guild Alliance and its tools." />
   <meta property="og:url" content="https://edenafk.com/" />
+  <meta property="og:image" content="https://edenafk.com/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="The Eden logo: a gold and silver dragon around a sky castle above the word Eden" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="theme-color" content="#0d1220" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -37,9 +43,10 @@
       background: radial-gradient(60rem 30rem at 50% -10%, var(--glow), transparent 70%), var(--bg);
       color: var(--ink); font: 16px/1.55 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     }
-    main { flex: 1; width: 100%; max-width: 880px; margin: 0 auto; padding: clamp(3rem, 10vh, 6rem) 16px 3rem; display: flex; flex-direction: column; gap: 2.5rem; }
+    main { flex: 1; width: 100%; max-width: 880px; margin: 0 auto; padding: clamp(1.5rem, 5vh, 3rem) 16px 3rem; display: flex; flex-direction: column; gap: 2.5rem; }
     .hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: .9rem; }
-    h1 { margin: 0; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: clamp(2.6rem, 9vw, 4.2rem); letter-spacing: .12em; line-height: 1; }
+    h1 { margin: 0; line-height: 0; }
+    .logo { display: block; width: min(360px, 78vw); height: auto; filter: drop-shadow(0 8px 30px rgba(61, 139, 255, .25)); }
     .tag { margin: 0; max-width: 46ch; color: var(--muted); font-size: 1.1rem; }
     .projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 1rem; list-style: none; margin: 0; padding: 0; }
     .projects a {
@@ -60,13 +67,7 @@
 <body>
   <main>
     <section class="hero">
-      <svg viewBox="0 0 24 24" width="72" height="72" role="img" aria-label="Eden crystal">
-        <path d="M12 1 L18 12 L12 23 L6 12 Z" fill="#d9a83a" />
-        <path d="M12 4 L16 12 L12 20 L8 12 Z" fill="#3d8bff" />
-        <path d="M12 4 L16 12 L12 12 Z" fill="#9ccaff" />
-        <path d="M8 12 L12 12 L12 20 Z" fill="#2a6fd6" />
-      </svg>
-      <h1>EDEN</h1>
+      <h1><img class="logo" src="/eden-logo.webp" width="720" height="720" alt="Eden" fetchpriority="high" /></h1>
       <p class="tag">The Eden Guild Alliance and the tools we build for AFK Arena Companions.</p>
     </section>
 

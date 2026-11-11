@@ -3,10 +3,13 @@ import Layout from '../layouts/Layout.astro';
 import { guilds, categories, regions, totalPlayers, currentExpedition, fmtInt, fmtDate, updated } from '../lib/data';
 ---
 <Layout>
-  <section class="page-head">
-    <span class="eyebrow">Eden Guild Alliance</span>
-    <h1>{guilds.length} guilds across {regions.length} regions</h1>
-    <p class="lede">Every guild in the alliance, with its region, guild ID and leaders. Use the guild ID to find a guild in game.</p>
+  <section class="hero">
+    <img class="logo" src="/eden-logo.webp" width="400" height="400" alt="Eden" fetchpriority="high" />
+    <div class="page-head">
+      <span class="eyebrow">Eden Guild Alliance</span>
+      <h1>{guilds.length} guilds across {regions.length} regions</h1>
+      <p class="lede">Every guild in the alliance, with its region, guild ID and leaders. Use the guild ID to find a guild in game.</p>
+    </div>
   </section>
 
   <div class="tiles">
@@ -52,6 +55,13 @@ import { guilds, categories, regions, totalPlayers, currentExpedition, fmtInt, f
 </Layout>
 
 <style>
+  .hero { display: flex; align-items: center; gap: 1.5rem; }
+  .logo { width: 170px; height: auto; flex: none; filter: drop-shadow(0 6px 22px rgba(61, 139, 255, .22)); }
+  @media (max-width: 640px) {
+    .hero { flex-direction: column; text-align: center; gap: .75rem; }
+    .hero .page-head { align-items: center; }
+    .logo { width: min(220px, 60vw); }
+  }
   .directory { display: flex; flex-direction: column; gap: 1.5rem; }
   .dir-head { display: flex; flex-direction: column; gap: .75rem; }
   .controls { display: flex; flex-direction: column; gap: .6rem; }

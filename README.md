@@ -21,6 +21,10 @@ Edit the sheet as usual (Discord Bot, Region tabs, Expedition Board); the `web_*
 
 Map and league colours match the fills on the sheet's Lists tab; they are copied into `MAPS` and `LEAGUES` in `src/lib/data.ts`, so change them there too if you recolour the sheet.
 
+## Logo
+
+The full-size Eden logo is `assets/eden-logo-original.png` (not deployed; 2.9 MB). The sites use smaller copies made from it: `eden-logo.webp` (720 px on the home page, 400 px on the alliance site), `og.jpg` (link previews, 1200×630) and `apple-touch-icon.png`. The small crystal in headers and browser tabs stays as `favicon.svg`, because the full logo can't be read at that size.
+
 ## How it updates
 
 - `.github/workflows/refresh-data.yml` downloads the published tabs every 3 hours and commits any change to `src/data/`, which makes Cloudflare rebuild the site. To update right away: **Actions** tab → **Refresh sheet data** → **Run workflow**.
