@@ -10,14 +10,14 @@ export function getStaticPaths() {
 const { g } = Astro.props as { g: Guild };
 const history = guildHistory(g);
 const current = history.find((h) => h.id === currentExpedition)?.entry;
-const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
+const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.id !== g.id);
 ---
-<Layout title={g.name} description={`${g.name}: ${g.category} of the Eden Alliance in Region ${g.region}. Guild ID ${g.id}.`}>
+<Layout title={g.name} description={`${g.name}: ${g.active ? '' : 'former '}${g.category} of the Eden Alliance in Region ${g.region}.${g.gameId ? ` Guild ID ${g.gameId}.` : ''}`}>
   <a class="muted small back" href="/">← All guilds</a>
   <section class="head" style={`--gc:${g.color}`}>
     <Emblem guild={g} size={128} eager />
     <div class="page-head">
-      <span class="eyebrow">{g.category} · Region {g.region ?? '—'}</span>
+      <span class="eyebrow">{g.active ? g.category : `Inactive · was a ${g.category.toLowerCase()}`} · Region {g.region ?? '—'}</span>
       <h1>{g.name}</h1>
       {g.purpose && <p class="lede">{g.purpose}</p>}
     </div>
@@ -26,21 +26,21 @@ const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
   <div class="tiles">
     <div class="tile">
       <span class="k">Guild ID</span>
-      <span class="v id">{g.id}</span>
-      <button class="copy" type="button" data-copy={g.id}>Copy ID</button>
+      <span class="v id">{g.gameId || '—'}</span>
+      {g.gameId && <button class="copy" type="button" data-copy={g.gameId}>Copy ID</button>}
     </div>
     <div class="tile"><span class="k">Members</span><span class="v">{g.players || '—'}</span></div>
     <div class="tile"><span class="k">Region</span><span class="v">{g.region ?? '—'}</span></div>
     <div class="tile"><span class="k">Status</span><span class="v status">{g.status}</span></div>
   </div>
 
-  <section class="card">
+  {(g.leader || g.deputies.length > 0) && <section class="card">
     <h2>Leadership</h2>
     <dl class="lead">
       <div><dt>Leader</dt><dd>{g.leader || '—'}</dd></div>
       {g.deputies.length > 0 && <div><dt>Deputies</dt><dd>{g.deputies.join(', ')}</dd></div>}
     </dl>
-  </section>
+  </section>}
 
   {current && (
     <section class="card">

@@ -46,7 +46,11 @@ export const updated = settings.updated ?? '';
 // ---------- Guilds (from the Discord Bot tab, minus Discord IDs) ----------
 
 export interface Guild {
+  /** Used in the page address: the in-game guild ID, or the name when the ID isn't known. */
   id: string;
+  /** The in-game guild ID, or '' when the sheet doesn't have it (some inactive guilds). */
+  gameId: string;
+  active: boolean;
   name: string;
   order: number;
   category: string;
@@ -70,10 +74,15 @@ const emblemFor = (name: string) => {
   return emblemFiles.has(path) ? path : '';
 };
 
+const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'guild';
+
+/** Every guild on the sheet, active and inactive. */
 export const guilds: Guild[] = parseCsv(guildsCsv)
-  .filter((r) => r.name && r.guild_id)
+  .filter((r) => r.name)
   .map((r) => ({
-    id: r.guild_id.replace(/,/g, ''),
+    id: r.guild_id ? r.guild_id.replace(/,/g, '') : slug(r.name),
+    gameId: r.guild_id.replace(/,/g, ''),
+    active: !/^inactive$/i.test(r.status),
     name: r.name,
     order: num(r.order) ?? 999,
     category: r.category || 'Guild',
@@ -88,27 +97,34 @@ export const guilds: Guild[] = parseCsv(guildsCsv)
   }))
   .sort((a, b) => a.order - b.order);
 
-/** Guilds in one category, in display order. Regional guilds go by region, then guild ID. */
+export const activeGuilds = guilds.filter((g) => g.active);
+/** Inactive guilds, listed apart at the end of the directory: by region, then name. */
+export const inactiveGuilds = guilds
+  .filter((g) => !g.active)
+  .sort((a, b) => (a.region ?? 999) - (b.region ?? 999) || a.name.localeCompare(b.name));
+
+/** Active guilds in one category, in display order. Regional guilds go by region, then guild ID. */
 export function guildsIn(category: string): Guild[] {
-  const list = guilds.filter((g) => g.category === category);
+  const list = activeGuilds.filter((g) => g.category === category);
   if (category !== 'Regional Guild') return list;
   return [...list].sort((a, b) => (a.region ?? 999) - (b.region ?? 999) || Number(a.id) - Number(b.id));
 }
 
 /** Heading for a category: "Branch Guilds" when it has more than one guild. */
 export const categoryHeading = (category: string) =>
-  guilds.filter((g) => g.category === category).length > 1 && !/s$/i.test(category) ? `${category}s` : category;
+  activeGuilds.filter((g) => g.category === category).length > 1 && !/s$/i.test(category) ? `${category}s` : category;
 
 const guildByName = new Map(guilds.map((g) => [g.name.toLowerCase(), g]));
 export const guildNamed = (name: string) => guildByName.get(name.toLowerCase());
 
 /** Category order on the directory: founding first, then sister, branch, regional, anything else. */
 const CATEGORY_ORDER = ['Founding Guild', 'Sister Guild', 'Branch Guild', 'Regional Guild'];
-export const categories = [...new Set(guilds.map((g) => g.category))].sort(
+export const categories = [...new Set(activeGuilds.map((g) => g.category))].sort(
   (a, b) => (CATEGORY_ORDER.indexOf(a) + 1 || 99) - (CATEGORY_ORDER.indexOf(b) + 1 || 99),
 );
 export const regions = [...new Set(guilds.map((g) => g.region).filter((r): r is number => r != null))].sort((a, b) => a - b);
-export const totalPlayers = guilds.reduce((s, g) => s + g.players, 0);
+export const activeRegions = [...new Set(activeGuilds.map((g) => g.region).filter((r): r is number => r != null))];
+export const totalPlayers = activeGuilds.reduce((s, g) => s + g.players, 0);
 
 // ---------- Maps and leagues (colours are the cell fills on the sheet's Lists tab) ----------
 

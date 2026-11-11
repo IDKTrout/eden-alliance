@@ -1,22 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Emblem from '../components/Emblem.astro';
-import { guilds, guildsIn, categories, categoryHeading, regions, totalPlayers, currentExpedition, fmtInt, fmtDate, updated } from '../lib/data';
+import { activeGuilds, inactiveGuilds, guildsIn, categories, categoryHeading, regions, activeRegions, totalPlayers, currentExpedition, fmtInt, fmtDate, updated } from '../lib/data';
+
+const sections = [
+  ...categories.map((cat) => ({ heading: categoryHeading(cat), list: guildsIn(cat), inactive: false })),
+  ...(inactiveGuilds.length ? [{ heading: 'Inactive Guilds', list: inactiveGuilds, inactive: true }] : []),
+];
 ---
 <Layout>
   <section class="hero">
     <img class="logo" src="/eden-logo.webp" width="400" height="400" alt="Eden" fetchpriority="high" />
     <div class="page-head">
       <span class="eyebrow">Eden Guild Alliance</span>
-      <h1>{guilds.length} guilds across {regions.length} regions</h1>
+      <h1>{activeGuilds.length} guilds across {activeRegions.length} regions</h1>
       <p class="lede">Every guild in the alliance, with its region, guild ID and leaders. Use the guild ID to find a guild in game.</p>
     </div>
   </section>
 
   <div class="tiles">
-    <div class="tile"><span class="k">Guilds</span><span class="v">{guilds.length}</span></div>
+    <div class="tile"><span class="k">Guilds</span><span class="v">{activeGuilds.length}</span></div>
     <div class="tile"><span class="k">Members</span><span class="v">{fmtInt(totalPlayers)}</span></div>
-    <div class="tile"><span class="k">Regions</span><span class="v">{regions.length}</span></div>
+    <div class="tile"><span class="k">Regions</span><span class="v">{activeRegions.length}</span></div>
     {currentExpedition && <a class="tile" href={`/expedition/${currentExpedition}/`}><span class="k">Expedition</span><span class="v">{currentExpedition}</span><span class="muted small">Maps and leagues →</span></a>}
   </div>
 
@@ -33,19 +38,22 @@ import { guilds, guildsIn, categories, categoryHeading, regions, totalPlayers, c
       </div>
     </div>
 
-    {categories.map((cat) => (
-      <section class="cat" data-cat>
-        <h3 class="cat-h">{categoryHeading(cat)}</h3>
+    {sections.map((sec) => (
+      <section class:list={['cat', { inactive: sec.inactive }]} data-cat>
+        <h3 class="cat-h">{sec.heading}</h3>
+        {sec.inactive && <p class="muted small">Guilds that were part of the alliance and are no longer active.</p>}
         <ul class="grid">
-          {guildsIn(cat).map((g) => (
-            <li class="g" style={`--gc:${g.color}`} data-region={g.region ?? ''} data-text={[g.name, g.leader, ...g.deputies, g.id].join(' ').toLowerCase()}>
+          {sec.list.map((g) => (
+            <li class="g" style={`--gc:${g.color}`} data-region={g.region ?? ''} data-text={[g.name, g.leader, ...g.deputies, g.gameId].join(' ').toLowerCase()}>
               <a href={`/guild/${g.id}/`}>
                 <Emblem guild={g} size={64} />
                 <span class="g-body">
-                  <span class="g-top"><strong>{g.name}</strong>{g.status !== 'Active' && <span class="tag">{g.status}</span>}</span>
-                  <span class="g-meta">Region {g.region ?? '—'} · ID {g.id}</span>
-                  <span class="g-meta">Leader <b>{g.leader || '—'}</b></span>
-                  <span class="g-foot">{g.players > 0 ? `${g.players} members` : 'Members not listed yet'}</span>
+                  <span class="g-top"><strong>{g.name}</strong>{sec.inactive && <span class="tag">Inactive</span>}</span>
+                  <span class="g-meta">Region {g.region ?? '—'}{g.gameId ? ` · ID ${g.gameId}` : ''}</span>
+                  {sec.inactive
+                    ? <span class="g-meta">Was a {g.category.toLowerCase()}</span>
+                    : <span class="g-meta">Leader <b>{g.leader || '—'}</b></span>}
+                  {!sec.inactive && <span class="g-foot">{g.players > 0 ? `${g.players} members` : 'Members not listed yet'}</span>}
                 </span>
               </a>
             </li>
@@ -81,6 +89,9 @@ import { guilds, guildsIn, categories, categoryHeading, regions, totalPlayers, c
   .g-meta { font-size: .85rem; color: var(--muted); }
   .g-meta b { color: var(--ink); font-weight: 500; }
   .g-foot { margin-top: auto; padding-top: .35rem; font-size: .8rem; color: var(--muted); }
+  .inactive .g a { border-top-color: var(--line); }
+  .inactive .g :global(.emblem) { filter: grayscale(.85); opacity: .75; }
+  .inactive .g a:hover :global(.emblem) { filter: none; opacity: 1; }
   .tag { font-size: .7rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 .45rem; color: var(--muted); }
 </style>
 
