@@ -1,0 +1,13 @@
+---
+// The Eden mark: a gold diamond around an Eden-blue crystal (same mark as "Made by Eden" on
+// event-rankings.edenafk.com). Colors are fixed so it looks the same in light and dark.
+interface Props { size?: number; title?: string }
+const { size = 28, title } = Astro.props;
+---
+<svg viewBox="0 0 24 24" width={size} height={size} role={title ? 'img' : undefined} aria-hidden={title ? undefined : 'true'}>
+  {title && <title>{title}</title>}
+  <path d="M12 1 L18 12 L12 23 L6 12 Z" fill="#d9a83a" />
+  <path d="M12 4 L16 12 L12 20 L8 12 Z" fill="#3d8bff" />
+  <path d="M12 4 L16 12 L12 12 Z" fill="#9ccaff" />
+  <path d="M8 12 L12 12 L12 20 Z" fill="#2a6fd6" />
+</svg>

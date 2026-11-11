@@ -1,0 +1,132 @@
+---
+import Logo from '../components/Logo.astro';
+import { currentExpedition } from '../lib/data';
+interface Props { title?: string; description?: string }
+const { title, description = 'The Eden Guild Alliance: every guild, its region, leaders and expedition maps.' } = Astro.props;
+const fullTitle = title ? `${title} · Eden Alliance` : 'Eden Alliance';
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/', label: 'Guilds', match: (p: string) => p === '/' || p.startsWith('/guild/') },
+  { href: `/expedition/${currentExpedition}/`, label: 'Expedition', match: (p: string) => p.startsWith('/expedition') },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Eden Alliance" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
+    <meta name="theme-color" content="#151c2f" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-head">
+      <div class="wrap head-row">
+        <a class="brand" href="/"><Logo size={26} /><span>Eden Alliance</span></a>
+        <nav aria-label="Main">
+          {nav.map((n) => <a href={n.href} aria-current={n.match(path) ? 'page' : undefined}>{n.label}</a>)}
+          <a href="https://event-rankings.edenafk.com">Rankings <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="wrap"><slot /></main>
+    <footer class="site-foot">
+      <div class="wrap">
+        <p>Guild details come from the alliance sheet and refresh every few hours.</p>
+        <p class="made-by"><Logo size={16} /><span>Part of <a class="eden" href="https://edenafk.com">Eden</a></span></p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #f2f4f8; --surface: #ffffff; --raised: #f7f8fb; --ink: #151b2c; --muted: #5b6579; --line: #dce1ea;
+    --accent: #b4801a; --accent-ink: #855a06; --blue: #2a6fd6;
+    --font-display: 'Cinzel', 'Trajan Pro', Georgia, serif;
+    --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --radius: 10px; --gap: 1.25rem;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1220; --surface: #151c2f; --raised: #1a2238; --ink: #e7ebf4; --muted: #9aa4ba; --line: #27314a;
+      --accent: #e0b04a; --accent-ink: #f0c869; --blue: #7db4ff;
+      color-scheme: dark;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body); }
+  a { color: inherit; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
+  a:hover { color: var(--accent-ink); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  h1, h2, h3 { line-height: 1.2; text-wrap: balance; margin: 0; }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.7rem, 4vw, 2.5rem); letter-spacing: .01em; }
+  h2 { font-size: 1.15rem; font-weight: 600; }
+  p { margin: 0; }
+  .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+  .skip { position: absolute; left: -999px; }
+  .skip:focus { left: 16px; top: 8px; background: var(--surface); padding: 6px 10px; z-index: 10; }
+
+  .site-head { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .7rem; }
+  .brand { display: flex; align-items: center; gap: .5rem; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; letter-spacing: .03em; white-space: nowrap; }
+  .site-head nav { display: flex; align-items: center; gap: .25rem; }
+  .site-head nav a { text-decoration: none; color: var(--muted); padding: .4rem .65rem; border-radius: 6px; font-weight: 500; white-space: nowrap; }
+  .site-head nav a:hover, .site-head nav a[aria-current='page'] { color: var(--ink); background: var(--raised); }
+  @media (max-width: 520px) {
+    .head-row { flex-wrap: wrap; row-gap: .35rem; }
+    .site-head nav { width: 100%; justify-content: space-between; }
+    .site-head nav a { padding: .4rem .45rem; font-size: .9rem; }
+  }
+
+  main.wrap { padding-block: 2rem 3rem; display: flex; flex-direction: column; gap: 2rem; }
+  .site-foot { border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+  .site-foot .wrap { padding-block: 1.5rem 2rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 2rem; }
+  .made-by { display: inline-flex; align-items: center; gap: .45rem; color: var(--ink); }
+  .made-by .eden { font-family: var(--font-display); font-weight: 700; letter-spacing: .04em; color: var(--accent-ink); text-decoration: none; }
+
+  .eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .09em; color: var(--accent-ink); font-weight: 600; }
+  .page-head { display: flex; flex-direction: column; gap: .5rem; }
+  .lede { font-size: 1.15rem; max-width: 62ch; }
+  .muted { color: var(--muted); }
+  .small { font-size: .85rem; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .85rem; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .2rem; min-width: 0; text-decoration: none; }
+  a.tile:hover { border-color: var(--accent); color: inherit; }
+  .tile .k { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+  .tile .v { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.15rem 1.25rem; display: flex; flex-direction: column; gap: .75rem; min-width: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .chip { display: inline-flex; align-items: center; gap: .35rem; background: var(--raised); border: 1px solid var(--line); border-radius: 999px; padding: .2rem .7rem; font: inherit; font-size: .84rem; color: var(--ink); text-decoration: none; }
+  button.chip { cursor: pointer; }
+  .chip[aria-pressed='true'], .chip[aria-current='page'] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .dot { width: .7rem; height: .7rem; border-radius: 50%; flex: none; box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 20%, transparent); }
+  .legend { display: flex; flex-wrap: wrap; gap: .35rem .9rem; font-size: .8rem; color: var(--muted); list-style: none; margin: 0; padding: 0; }
+  .legend li { display: inline-flex; align-items: center; gap: .35rem; }
+  .legend .sw { width: .8rem; height: .8rem; border-radius: 3px; }
+  .legend .sw.blank { background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px); }
+
+  .table-wrap { overflow-x: auto; }
+  table.data { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+  table.data th { text-align: left; font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: .5rem .55rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.data td { padding: .45rem .55rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.data tr:last-child td { border-bottom: 0; }
+  table.data .num { text-align: right; }
+  table.data tbody tr:hover { background: var(--raised); }
+  .pill { display: inline-grid; place-items: center; min-width: 1.9rem; padding: .05rem .4rem; border-radius: 5px; font-size: .78rem; font-weight: 600; }
+  details.table-view > summary { cursor: pointer; color: var(--muted); font-size: .85rem; }
+  details.table-view[open] > summary { margin-bottom: .5rem; }
+</style>

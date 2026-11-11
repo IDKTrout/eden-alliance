@@ -1,0 +1,101 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StackBar from '../../components/StackBar.astro';
+import { guilds, guildHistory, mapColor, leagueColor, inkOn, currentExpedition, pct, type Guild } from '../../lib/data';
+
+export function getStaticPaths() {
+  return guilds.map((g) => ({ params: { id: g.id }, props: { g } }));
+}
+const { g } = Astro.props as { g: Guild };
+const history = guildHistory(g);
+const current = history.find((h) => h.id === currentExpedition)?.entry;
+const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
+---
+<Layout title={g.name} description={`${g.name}: ${g.category} of the Eden Alliance in Region ${g.region}. Guild ID ${g.id}.`}>
+  <section class="page-head head" style={`--gc:${g.color}`}>
+    <a class="muted small" href="/">← All guilds</a>
+    <span class="eyebrow">{g.category} · Region {g.region ?? '—'}</span>
+    <h1><span class="dot big" style={`background:${g.color}`}></span>{g.name}</h1>
+    {g.purpose && <p class="lede">{g.purpose}</p>}
+  </section>
+
+  <div class="tiles">
+    <div class="tile">
+      <span class="k">Guild ID</span>
+      <span class="v id">{g.id}</span>
+      <button class="copy" type="button" data-copy={g.id}>Copy ID</button>
+    </div>
+    <div class="tile"><span class="k">Members</span><span class="v">{g.players || '—'}</span></div>
+    <div class="tile"><span class="k">Region</span><span class="v">{g.region ?? '—'}</span></div>
+    <div class="tile"><span class="k">Status</span><span class="v status">{g.status}</span></div>
+  </div>
+
+  <section class="card">
+    <h2>Leadership</h2>
+    <dl class="lead">
+      <div><dt>Leader</dt><dd>{g.leader || '—'}</dd></div>
+      {g.deputies.length > 0 && <div><dt>Deputies</dt><dd>{g.deputies.join(', ')}</dd></div>}
+    </dl>
+  </section>
+
+  {current && (
+    <section class="card">
+      <h2>Expedition {currentExpedition}</h2>
+      <p class="muted small">{current.mapped} of {current.players} players have a map entered ({pct(current.mapped, current.players)}%). <a href={`/expedition/${currentExpedition}/`}>All guilds →</a></p>
+      <div class="bars">
+        <span class="bl">Maps</span><StackBar parts={current.maps} total={current.players} color={mapColor} label={(k) => `Map ${k}`} />
+        <span class="bl">Leagues</span><StackBar parts={current.leagues} total={current.players} color={leagueColor} label={(k) => `League ${k}`} />
+      </div>
+    </section>
+  )}
+
+  {history.length > 0 && (
+    <section class="card">
+      <h2>Expedition history</h2>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Expedition</th><th class="num">Players</th><th>Main map</th><th>Main league</th><th class="num">Entered</th></tr></thead>
+        <tbody>
+          {history.map(({ id, entry }) => (
+            <tr>
+              <td><a href={`/expedition/${id}/`}>{id}</a></td>
+              <td class="num">{entry.players}</td>
+              <td>{entry.mainMap ? <span class="pill" style={`background:${mapColor(entry.mainMap)};color:${inkOn(mapColor(entry.mainMap))}`}>{entry.mainMap}</span> : '—'}</td>
+              <td>{entry.mainLeague ? <span class="pill" style={`background:${leagueColor(entry.mainLeague)};color:${inkOn(leagueColor(entry.mainLeague))}`}>{entry.mainLeague}</span> : '—'}</td>
+              <td class="num">{pct(entry.mapped, entry.players)}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table></div>
+    </section>
+  )}
+
+  {sameRegion.length > 0 && (
+    <section class="card">
+      <h2>Also in Region {g.region}</h2>
+      <div class="chips">{sameRegion.map((o) => <a class="chip" href={`/guild/${o.id}/`}><span class="dot" style={`background:${o.color}`}></span>{o.name}</a>)}</div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .head h1 { display: flex; align-items: center; gap: .6rem; }
+  .dot.big { width: 1.1rem; height: 1.1rem; }
+  .v.id { font-family: var(--font-body); letter-spacing: .02em; }
+  .v.status { font-size: 1.2rem; }
+  .copy { align-self: flex-start; margin-top: .2rem; font: inherit; font-size: .78rem; background: var(--raised); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: .15rem .55rem; cursor: pointer; }
+  .lead { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; margin: 0; }
+  .lead dt { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+  .lead dd { margin: 0; font-size: 1.05rem; font-weight: 500; }
+  .bars { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .6rem .8rem; }
+  .bl { font-size: .8rem; color: var(--muted); }
+</style>
+
+<script>
+  for (const b of document.querySelectorAll<HTMLButtonElement>('button[data-copy]')) {
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy ?? ''); b.textContent = 'Copied'; }
+      catch { b.textContent = 'Copy failed'; }
+      setTimeout(() => (b.textContent = 'Copy ID'), 1500);
+    });
+  }
+</script>

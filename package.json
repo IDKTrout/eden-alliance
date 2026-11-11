@@ -1,0 +1,16 @@
+{
+  "name": "eden-alliance",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "data": "node scripts/fetch-data.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "build:fresh": "node scripts/fetch-data.mjs && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  }
+}

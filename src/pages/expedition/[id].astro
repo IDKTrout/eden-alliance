@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StackBar from '../../components/StackBar.astro';
+import { expeditionIds, currentExpedition, expedition, keysUsed, mapColor, leagueColor, inkOn, pct, fmtInt } from '../../lib/data';
+
+export function getStaticPaths() {
+  return expeditionIds.map((id) => ({ params: { id } }));
+}
+const { id } = Astro.params as { id: string };
+const list = expedition(id);
+const maps = keysUsed(list, 'maps');
+const leagues = keysUsed(list, 'leagues');
+const players = list.reduce((s, g) => s + g.players, 0);
+const mapped = list.reduce((s, g) => s + g.mapped, 0);
+const anyBlank = list.some((g) => g.mapped < g.players);
+const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) => g[field].find((t) => t.key === k)?.count ?? 0;
+---
+<Layout title={`Expedition ${id}`} description={`Which maps and leagues each Eden Alliance guild played in expedition ${id}.`}>
+  <section class="page-head">
+    <span class="eyebrow">{id === currentExpedition ? 'Current expedition' : 'Past expedition'}</span>
+    <h1>Expedition {id}</h1>
+    <p class="lede">Where each guild's players are placed: map and league, guild by guild.</p>
+    <nav class="chips" aria-label="Expeditions">
+      {[...expeditionIds].reverse().map((e) => <a class="chip" href={`/expedition/${e}/`} aria-current={e === id ? 'page' : undefined}>{e}</a>)}
+    </nav>
+  </section>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Guilds</span><span class="v">{list.length}</span></div>
+    <div class="tile"><span class="k">Players</span><span class="v">{fmtInt(players)}</span></div>
+    <div class="tile"><span class="k">Map entered</span><span class="v">{pct(mapped, players)}%</span></div>
+  </div>
+
+  {[
+    { field: 'maps' as const, title: 'Maps', keys: maps, color: mapColor, noun: 'Map' },
+    { field: 'leagues' as const, title: 'Leagues', keys: leagues, color: leagueColor, noun: 'League' },
+  ].map((c) => (
+    <section class="card">
+      <h2>{c.title}</h2>
+      <ul class="legend">
+        {c.keys.map((k) => <li><span class="sw" style={`background:${c.color(k)}`}></span>{c.noun} {k}</li>)}
+        {anyBlank && <li><span class="sw blank"></span>Not entered</li>}
+      </ul>
+      <div class="rows">
+        {list.map((g) => (
+          <>
+            <span class="gname">
+              <span class="dot" style={`background:${g.guildRecord?.color ?? 'var(--line)'}`}></span>
+              {g.guildRecord ? <a href={`/guild/${g.guildRecord.id}/`}>{g.guild}</a> : <span>{g.guild}</span>}
+            </span>
+            <StackBar parts={g[c.field]} total={g.players} color={c.color} label={(k) => `${c.noun} ${k}`} />
+            <span class="n">{g.players}</span>
+          </>
+        ))}
+      </div>
+      <details class="table-view">
+        <summary>Show as a table</summary>
+        <div class="table-wrap"><table class="data">
+          <thead><tr><th>Guild</th>{c.keys.map((k) => <th class="num"><span class="pill" style={`background:${c.color(k)};color:${inkOn(c.color(k))}`}>{k}</span></th>)}<th class="num">Not entered</th><th class="num">Players</th></tr></thead>
+          <tbody>
+            {list.map((g) => {
+              const entered = g[c.field].reduce((s, t) => s + t.count, 0);
+              return (
+                <tr>
+                  <td>{g.guild}</td>
+                  {c.keys.map((k) => <td class="num">{count(g, c.field, k) || ''}</td>)}
+                  <td class="num muted">{g.players - entered || ''}</td>
+                  <td class="num">{g.players}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table></div>
+      </details>
+    </section>
+  ))}
+</Layout>
+
+<style>
+  .rows { display: grid; grid-template-columns: minmax(7rem, max-content) 1fr 2.2rem; align-items: center; gap: .45rem .8rem; }
+  .gname { display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gname a { text-decoration: none; }
+  .gname a:hover { text-decoration: underline; }
+  .n { font-size: .8rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  @media (max-width: 520px) { .rows { grid-template-columns: 6rem 1fr 1.8rem; gap: .4rem .5rem; } }
+</style>

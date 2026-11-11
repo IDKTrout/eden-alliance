@@ -1,0 +1,8 @@
+// Cloudflare Workers Builds config for edenafk.com (the root home page). Plain static files, no build step.
+{
+  "name": "edenafk-home",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public"
+  }
+}

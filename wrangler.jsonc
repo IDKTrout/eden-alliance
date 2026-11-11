@@ -1,0 +1,9 @@
+// Cloudflare Workers Builds config for alliance.edenafk.com: serves the Astro build in dist/.
+{
+  "name": "eden-alliance",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

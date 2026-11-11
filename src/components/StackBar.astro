@@ -1,0 +1,35 @@
+---
+// One horizontal bar split into segments (players per map or per league). Each segment shows
+// its own count when wide enough and a tooltip on hover; the legend beside the chart names colors.
+import { inkOn, type Tally } from '../lib/data';
+interface Props {
+  parts: Tally[];
+  total: number;
+  color: (key: string) => string;
+  label: (key: string) => string;
+}
+const { parts, total, color, label } = Astro.props;
+const shown = parts.reduce((s, p) => s + p.count, 0);
+const blank = Math.max(0, total - shown);
+// Only label a segment when it is wide enough (7% of the bar) to fit its letter.
+const wide = (count: number) => total > 0 && count >= total * 0.07;
+---
+<div class="stack" role="img" aria-label={parts.map((p) => `${label(p.key)}: ${p.count}`).join(', ') + (blank ? `, not entered: ${blank}` : '')}>
+  {parts.map((p) => (
+    <span class="seg" style={`flex:${p.count};background:${color(p.key)};color:${inkOn(color(p.key))}`} title={`${label(p.key)}: ${p.count} player${p.count === 1 ? '' : 's'}`}>
+      {wide(p.count) && <b>{p.key}</b>}
+    </span>
+  ))}
+  {blank > 0 && <span class="seg blank" style={`flex:${blank}`} title={`Not entered yet: ${blank}`}></span>}
+</div>
+
+<style>
+  .stack { display: flex; gap: 2px; height: 22px; width: 100%; min-width: 0; }
+  .seg { display: grid; place-items: center; min-width: 3px; font-size: .7rem; overflow: hidden; white-space: nowrap; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .seg:only-child { border-radius: 4px; }
+  .seg b { font-weight: 600; }
+  .seg.blank { background: repeating-linear-gradient(135deg, var(--line) 0 4px, transparent 4px 8px); }
+  .seg:hover { filter: brightness(1.08); outline: 2px solid var(--ink); outline-offset: -2px; }
+</style>
