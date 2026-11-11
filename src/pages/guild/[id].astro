@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
-import { guilds, guildHistory, mapColor, leagueColor, inkOn, currentExpedition, pct, type Guild } from '../../lib/data';
+import { guilds, guildHistory, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, type Guild } from '../../lib/data';
 
 export function getStaticPaths() {
   return guilds.map((g) => ({ params: { id: g.id }, props: { g } }));
@@ -43,7 +43,7 @@ const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
       <h2>Expedition {currentExpedition}</h2>
       <p class="muted small">{current.mapped} of {current.players} players have a map entered ({pct(current.mapped, current.players)}%). <a href={`/expedition/${currentExpedition}/`}>All guilds →</a></p>
       <div class="bars">
-        <span class="bl">Maps</span><StackBar parts={current.maps} total={current.players} color={mapColor} label={(k) => `Map ${k}`} />
+        <span class="bl">Maps</span><StackBar parts={current.maps} total={current.players} color={mapColor} label={mapLabel} />
         <span class="bl">Leagues</span><StackBar parts={current.leagues} total={current.players} color={leagueColor} label={(k) => `League ${k}`} />
       </div>
     </section>
@@ -59,7 +59,7 @@ const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
             <tr>
               <td><a href={`/expedition/${id}/`}>{id}</a></td>
               <td class="num">{entry.players}</td>
-              <td>{entry.mainMap ? <span class="pill" style={`background:${mapColor(entry.mainMap)};color:${inkOn(mapColor(entry.mainMap))}`}>{entry.mainMap}</span> : '—'}</td>
+              <td>{entry.mainMap ? <span class="pill" title={mapLabel(entry.mainMap)} style={`background:${mapColor(entry.mainMap)};color:${inkOn(mapColor(entry.mainMap))}`}>{entry.mainMap}</span> : '—'}</td>
               <td>{entry.mainLeague ? <span class="pill" style={`background:${leagueColor(entry.mainLeague)};color:${inkOn(leagueColor(entry.mainLeague))}`}>{entry.mainLeague}</span> : '—'}</td>
               <td class="num">{pct(entry.mapped, entry.players)}%</td>
             </tr>

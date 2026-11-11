@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
-import { expeditionIds, currentExpedition, expedition, keysUsed, mapColor, leagueColor, inkOn, pct, fmtInt } from '../../lib/data';
+import { expeditionIds, currentExpedition, expedition, keysUsed, mapColor, mapLabel, leagueColor, inkOn, pct, fmtInt } from '../../lib/data';
 
 export function getStaticPaths() {
   return expeditionIds.map((id) => ({ params: { id } }));
@@ -32,13 +32,13 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
   </div>
 
   {[
-    { field: 'maps' as const, title: 'Maps', keys: maps, color: mapColor, noun: 'Map' },
-    { field: 'leagues' as const, title: 'Leagues', keys: leagues, color: leagueColor, noun: 'League' },
+    { field: 'maps' as const, title: 'Maps', keys: maps, color: mapColor, label: mapLabel },
+    { field: 'leagues' as const, title: 'Leagues', keys: leagues, color: leagueColor, label: (k: string) => `League ${k}` },
   ].map((c) => (
     <section class="card">
       <h2>{c.title}</h2>
       <ul class="legend">
-        {c.keys.map((k) => <li><span class="sw" style={`background:${c.color(k)}`}></span>{c.noun} {k}</li>)}
+        {c.keys.map((k) => <li><span class="sw" style={`background:${c.color(k)}`}></span>{c.label(k)}</li>)}
         {anyBlank && <li><span class="sw blank"></span>Not entered</li>}
       </ul>
       <div class="rows">
@@ -48,7 +48,7 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
               <span class="dot" style={`background:${g.guildRecord?.color ?? 'var(--line)'}`}></span>
               {g.guildRecord ? <a href={`/guild/${g.guildRecord.id}/`}>{g.guild}</a> : <span>{g.guild}</span>}
             </span>
-            <StackBar parts={g[c.field]} total={g.players} color={c.color} label={(k) => `${c.noun} ${k}`} />
+            <StackBar parts={g[c.field]} total={g.players} color={c.color} label={c.label} />
             <span class="n">{g.players}</span>
           </>
         ))}
@@ -56,7 +56,7 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
       <details class="table-view">
         <summary>Show as a table</summary>
         <div class="table-wrap"><table class="data">
-          <thead><tr><th>Guild</th>{c.keys.map((k) => <th class="num"><span class="pill" style={`background:${c.color(k)};color:${inkOn(c.color(k))}`}>{k}</span></th>)}<th class="num">Not entered</th><th class="num">Players</th></tr></thead>
+          <thead><tr><th>Guild</th>{c.keys.map((k) => <th class="num"><span class="pill" title={c.label(k)} style={`background:${c.color(k)};color:${inkOn(c.color(k))}`}>{k}</span></th>)}<th class="num">Not entered</th><th class="num">Players</th></tr></thead>
           <tbody>
             {list.map((g) => {
               const entered = g[c.field].reduce((s, t) => s + t.count, 0);

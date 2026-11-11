@@ -97,6 +97,9 @@ export const LEAGUES: Record<string, string> = {
   '1': '#ea4335', '2': '#ffd966', '3': '#d5a6bd', '4': '#93c47d', '5': '#46bdc6', '6': '#674ea7',
   '7': '#6fa8dc', '8': '#b4a7d6', '9': '#7f6000', '10': '#f6b26b', '11': '#38761d', '12': '#1c4587',
 };
+/** Map codes that aren't a lettered map. */
+const MAP_NAMES: Record<string, string> = { S: 'Solo', NE: 'Not enrolled' };
+export const mapLabel = (m: string) => MAP_NAMES[m] ?? `Map ${m}`;
 const OTHER = '#8b96a8';
 export const mapColor = (m: string) => MAPS[m] ?? OTHER;
 export const leagueColor = (l: string) => LEAGUES[l] ?? OTHER;
