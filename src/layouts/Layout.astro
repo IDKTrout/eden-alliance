@@ -1,6 +1,6 @@
 ---
 import Logo from '../components/Logo.astro';
-import { currentExpedition } from '../lib/data';
+import { currentExpedition, abexSeasons, riftSeasons, seasonSlug } from '../lib/data';
 interface Props { title?: string; description?: string }
 const { title, description = 'The Eden Guild Alliance: every guild, its region, leaders and expedition maps.' } = Astro.props;
 const fullTitle = title ? `${title} · Eden Alliance` : 'Eden Alliance';
@@ -8,6 +8,8 @@ const path = Astro.url.pathname;
 const nav = [
   { href: '/', label: 'Guilds', match: (p: string) => p === '/' || p.startsWith('/guild/') },
   { href: `/expedition/${currentExpedition}/`, label: 'Expedition', match: (p: string) => p.startsWith('/expedition') },
+  { href: `/abex/${seasonSlug(abexSeasons[0] ?? '')}/`, label: 'AbEx', match: (p: string) => p.startsWith('/abex') },
+  { href: `/rift/${seasonSlug(riftSeasons[0] ?? '')}/`, label: 'Rift', match: (p: string) => p.startsWith('/rift') },
 ];
 ---
 <!doctype html>
@@ -95,7 +97,7 @@ const nav = [
   @media (max-width: 520px) {
     .head-row { flex-wrap: wrap; row-gap: .35rem; }
     .site-head nav { width: 100%; justify-content: space-between; }
-    .site-head nav a { padding: .4rem .45rem; font-size: .9rem; }
+    .site-head nav a { padding: .4rem .3rem; font-size: .86rem; }
   }
 
   main.wrap { padding-block: 2rem 3rem; display: flex; flex-direction: column; gap: 2rem; }

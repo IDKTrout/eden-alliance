@@ -4,6 +4,8 @@
 import guildsCsv from '../data/web_guilds.csv?raw';
 import expeditionsCsv from '../data/web_expeditions.csv?raw';
 import settingsCsv from '../data/web_settings.csv?raw';
+import abexCsv from '../data/web_abex.csv?raw';
+import riftCsv from '../data/web_rift.csv?raw';
 
 function parseCsv(text: string): Record<string, string>[] {
   const rows: string[][] = [];
@@ -241,3 +243,93 @@ export const fmtDate = (iso: string) => {
   const d = new Date(`${iso}T00:00:00Z`);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 };
+
+// ---------- AbEx (the sheet's Vault of Time tabs) and Temporal Rift: Eden guilds only ----------
+
+/** AbEx seasons left off the site: Season 2 was before AbEx went global. */
+const ABEX_HIDDEN = new Set(['2']);
+
+/** "4 Beta" -> "4-beta", used in page addresses. */
+export const seasonSlug = (s: string) => s.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+export const seasonName = (s: string) => `Season ${s.trim()}`;
+/** Newest first: higher number first, and a full season before its beta. */
+const seasonSort = (a: string, b: string) =>
+  seasonNum(b) - seasonNum(a) || Number(/beta/i.test(a)) - Number(/beta/i.test(b)) || a.localeCompare(b);
+
+export interface AbexRow {
+  season: string;
+  guild: string;
+  guildRecord?: Guild;
+  server: number | null;
+  region: number | null;
+  dim: string;
+  /** Finish time (hhh:mm:ss) when the guild cleared it, '' for DNF. */
+  time: string;
+  /** Total damage dealt, in raw game units. */
+  damage: number | null;
+  percent: number | null;
+  /** Global rank, or null when the guild didn't place. */
+  rank: number | null;
+  /** True when the sheet says DNP (did not play). */
+  dnp: boolean;
+}
+
+/** "71.99%" or the fraction 0.7199 (how the published sheet sends it) -> 71.99. */
+const pctValue = (v: string | undefined) => {
+  if (!v) return null;
+  const n = num(v.replace('%', ''));
+  return n == null ? null : v.includes('%') ? n : n * 100;
+};
+
+export const abex: AbexRow[] = parseCsv(abexCsv)
+  .filter((r) => r.season && r.guild && !ABEX_HIDDEN.has(r.season.trim()))
+  .map((r) => ({
+    season: r.season.trim(),
+    guild: r.guild,
+    guildRecord: guildNamed(r.guild),
+    server: num(r.server),
+    region: num(r.region),
+    dim: r.dim,
+    time: /^\d+:\d\d:\d\d$/.test(r.time) ? r.time : '',
+    damage: num(r.damage),
+    percent: pctValue(r.percent),
+    rank: num(r.rank),
+    dnp: /^dnp$/i.test(r.rank),
+  }));
+
+export const abexSeasons = [...new Set(abex.map((r) => r.season))].sort(seasonSort);
+export const abexFor = (season: string) =>
+  abex.filter((r) => r.season === season).sort((a, b) => (a.rank ?? 1e9) - (b.rank ?? 1e9) || (b.damage ?? 0) - (a.damage ?? 0));
+
+export interface RiftRow {
+  season: string;
+  place: number | null;
+  player: string;
+  floor: number | null;
+  server: string;
+  guild: string;
+  guildRecord?: Guild;
+}
+
+export const rift: RiftRow[] = parseCsv(riftCsv)
+  .filter((r) => r.season && r.player)
+  .map((r) => ({
+    season: r.season.trim(),
+    place: num(r.place),
+    player: r.player,
+    floor: num(r.floor),
+    server: r.server.replace(/^s/i, ''),
+    guild: r.guild,
+    guildRecord: guildNamed(r.guild),
+  }));
+
+export const riftSeasons = [...new Set(rift.map((r) => r.season))].sort(seasonSort);
+export const riftFor = (season: string) => rift.filter((r) => r.season === season).sort((a, b) => (a.place ?? 1e9) - (b.place ?? 1e9));
+
+/** 3,840,000,000,000 -> "3.84T"; 769,380,000,000 -> "769.38B". */
+export function fmtDamage(n: number | null): string {
+  if (n == null) return '—';
+  const units: [number, string][] = [[1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
+  for (const [v, u] of units) if (n >= v) return `${(n / v).toLocaleString('en-US', { maximumFractionDigits: 2 })}${u}`;
+  return fmtInt(n);
+}

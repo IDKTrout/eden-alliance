@@ -1,0 +1,78 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Emblem from '../../components/Emblem.astro';
+import { abexSeasons, abexFor, seasonSlug, seasonName, fmtDamage } from '../../lib/data';
+
+export function getStaticPaths() {
+  return abexSeasons.map((season) => ({ params: { season: seasonSlug(season) }, props: { season } }));
+}
+const { season } = Astro.props as { season: string };
+const rows = abexFor(season);
+const ranked = rows.filter((r) => r.rank != null);
+const best = ranked[0];
+const finished = rows.filter((r) => r.time).length;
+// AbEx rank tiers, same as Event Rankings: 1-5 gold, 6-10 silver, 11-50 bronze.
+const tier = (rank: number | null) => (rank == null ? '' : rank <= 5 ? 'gold' : rank <= 10 ? 'silver' : rank <= 50 ? 'bronze' : '');
+---
+<Layout title={`AbEx ${seasonName(season)}`} description={`Eden Alliance guilds in AbEx (Vault of Time) ${seasonName(season)}: global rank, damage and finish time.`}>
+  <section class="page-head">
+    <span class="eyebrow">AbEx · Vault of Time</span>
+    <h1>{seasonName(season)}</h1>
+    <p class="lede">Where each Eden guild placed in the global ranking.</p>
+    <nav class="chips" aria-label="AbEx seasons">
+      {abexSeasons.map((s) => <a class="chip" href={`/abex/${seasonSlug(s)}/`} aria-current={s === season ? 'page' : undefined}>{seasonName(s)}</a>)}
+    </nav>
+  </section>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Eden guilds ranked</span><span class="v">{ranked.length}</span></div>
+    {best && <div class="tile"><span class="k">Best rank</span><span class="v">#{best.rank}</span><span class="muted small">{best.guild}</span></div>}
+    <div class="tile"><span class="k">Finished</span><span class="v">{finished}</span><span class="muted small">reached 100%</span></div>
+  </div>
+
+  <section class="card">
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th class="num">Rank</th><th>Guild</th><th class="hide-sm">Dim</th><th>Damage</th><th class="num">Time</th></tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td class="num">{r.rank != null ? <span class:list={['medal', tier(r.rank)]}>{r.rank}</span> : <span class="muted">{r.dnp ? 'DNP' : '—'}</span>}</td>
+            <td>
+              <span class="gcell">
+                <Emblem guild={r.guildRecord} size={26} />
+                <span>
+                  {r.guildRecord ? <a href={`/guild/${r.guildRecord.id}/`}>{r.guild}</a> : r.guild}
+                  <span class="sub">Region {r.region ?? '—'}{r.server != null ? ` · S${r.server}` : ''}</span>
+                </span>
+              </span>
+            </td>
+            <td class="hide-sm muted">{r.dim || '—'}</td>
+            <td class="dmg">
+              <span class="dmg-v">{fmtDamage(r.damage)}<span class="muted"> · {r.percent != null ? `${r.percent.toFixed(2)}%` : '—'}</span></span>
+              <span class="bar" aria-hidden="true"><span style={`width:${Math.min(100, r.percent ?? 0)}%`}></span></span>
+            </td>
+            <td class="num">{r.time ? <strong class="fin">{r.time}</strong> : <span class="muted">DNF</span>}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="muted small">Rank is the guild's place in the global AbEx ranking. Bold times are finish times for guilds that reached 100%. DNF: did not finish. DNP: did not play.</p>
+  </section>
+</Layout>
+
+<style>
+  .gcell { display: inline-flex; align-items: center; gap: .55rem; }
+  .gcell a { text-decoration: none; font-weight: 500; }
+  .gcell a:hover { text-decoration: underline; }
+  .sub { display: block; font-size: .74rem; color: var(--muted); }
+  .dmg { min-width: 10rem; }
+  .dmg-v { display: block; font-size: .86rem; }
+  .bar { display: block; height: 6px; margin-top: .3rem; border-radius: 3px; background: var(--raised); overflow: hidden; }
+  .bar span { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .fin { color: var(--accent-ink); }
+  .medal { display: inline-grid; place-items: center; min-width: 1.8rem; height: 1.8rem; padding: 0 .3rem; border-radius: 999px; font-weight: 600; font-size: .8rem; background: var(--raised); }
+  .medal.gold { background: #e3b543; color: #1d1503; }
+  .medal.silver { background: #a9b4c6; color: #10151f; }
+  .medal.bronze { background: #cf8a5c; color: #1f0f05; }
+  @media (max-width: 560px) { .hide-sm { display: none; } .dmg { min-width: 7rem; } }
+</style>

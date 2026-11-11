@@ -5,17 +5,19 @@ Two small sites for the Eden Guild Alliance:
 | Site | Folder | What it is |
 |---|---|---|
 | [edenafk.com](https://edenafk.com) | `home/` | The Eden home page: links to the alliance site and to [Event Rankings](https://event-rankings.edenafk.com). Plain HTML, no build. |
-| [alliance.edenafk.com](https://alliance.edenafk.com) | repo root | The guild directory and each expedition's maps and leagues, built with [Astro](https://astro.build) from the alliance sheet. |
+| [alliance.edenafk.com](https://alliance.edenafk.com) | repo root | The guild directory, each expedition's maps and leagues, and Eden's AbEx and Temporal Rift results, built with [Astro](https://astro.build) from the alliance sheet. |
 
 ## Where the data lives
 
-Everything comes from the Google Sheet **Eden Guild Alliance 4.1**. The site reads only the three `web_*` tabs, which are formulas over the real tabs and are the only tabs published to the web:
+Everything comes from the Google Sheet **Eden Guild Alliance 4.1**. The site reads only the five `web_*` tabs, which are formulas over the real tabs and are the only tabs published to the web:
 
 | Tab | Pulls from | Holds |
 |---|---|---|
 | `web_guilds` | Discord Bot | name, order, category, leader, deputies, purpose, region, guild ID, status, colour, players. **No Discord IDs.** |
 | `web_expeditions` | Expedition Log | expedition, guild, map, league. **No player names.** |
 | `web_settings` | Lists | the current expedition, and when member counts were last updated |
+| `web_abex` | VoT Log | AbEx (Vault of Time) results for Eden guilds: season, guild, server, region, dim, time, damage, percent, rank. Season 2 is left off the site (before AbEx went global). |
+| `web_rift` | TR Log | Temporal Rift results for Eden players: season, place, player, floor, server, guild |
 
 Edit the sheet as usual (Discord Bot, Region tabs, Expedition Board); the `web_*` tabs follow on their own. Don't publish any other tab: Discord Bot holds Discord IDs and Other Groups holds the blacklist. `scripts/fetch-data.mjs` also refuses to save a tab whose header mentions Discord.
 

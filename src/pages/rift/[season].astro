@@ -1,0 +1,60 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Emblem from '../../components/Emblem.astro';
+import { riftSeasons, riftFor, seasonSlug, seasonName, fmtInt } from '../../lib/data';
+
+export function getStaticPaths() {
+  return riftSeasons.map((season) => ({ params: { season: seasonSlug(season) }, props: { season } }));
+}
+const { season } = Astro.props as { season: string };
+const rows = riftFor(season);
+const best = rows[0];
+const guildCount = new Set(rows.map((r) => r.guild)).size;
+---
+<Layout title={`Temporal Rift ${seasonName(season)}`} description={`Eden Alliance players in Temporal Rift ${seasonName(season)}: global place and highest floor.`}>
+  <section class="page-head">
+    <span class="eyebrow">Temporal Rift</span>
+    <h1>{seasonName(season)}</h1>
+    <p class="lede">Eden players in the global Temporal Rift ranking, by highest floor reached.</p>
+    <nav class="chips" aria-label="Temporal Rift seasons">
+      {riftSeasons.map((s) => <a class="chip" href={`/rift/${seasonSlug(s)}/`} aria-current={s === season ? 'page' : undefined}>{seasonName(s)}</a>)}
+    </nav>
+  </section>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Eden players ranked</span><span class="v">{rows.length}</span><span class="muted small">from {guildCount} guilds</span></div>
+    {best && <div class="tile"><span class="k">Best place</span><span class="v">#{best.place}</span><span class="muted small">{best.player}</span></div>}
+    {best?.floor != null && <div class="tile"><span class="k">Top floor</span><span class="v">{fmtInt(best.floor)}</span></div>}
+  </div>
+
+  <section class="card">
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th class="num">Place</th><th>Player</th><th class="num">Floor</th><th>Guild</th><th class="num hide-sm">Server</th></tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td class="num">{r.place ?? '—'}</td>
+            <td class="player">{r.player}</td>
+            <td class="num">{r.floor != null ? fmtInt(r.floor) : '—'}</td>
+            <td>
+              <span class="gcell">
+                <Emblem guild={r.guildRecord} size={22} />
+                {r.guildRecord ? <a href={`/guild/${r.guildRecord.id}/`}>{r.guild}</a> : r.guild}
+              </span>
+            </td>
+            <td class="num hide-sm muted">{r.server ? `S${r.server}` : '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="muted small">Place is the player's place in the global Temporal Rift ranking.</p>
+  </section>
+</Layout>
+
+<style>
+  .player { font-weight: 500; }
+  .gcell { display: inline-flex; align-items: center; gap: .45rem; }
+  .gcell a { text-decoration: none; }
+  .gcell a:hover { text-decoration: underline; }
+  @media (max-width: 560px) { .hide-sm { display: none; } td.player { white-space: normal; overflow-wrap: anywhere; } }
+</style>

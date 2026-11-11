@@ -1,0 +1,4 @@
+---
+import { riftSeasons, seasonSlug } from '../lib/data';
+return Astro.redirect(`/rift/${seasonSlug(riftSeasons[0] ?? '')}/`);
+---

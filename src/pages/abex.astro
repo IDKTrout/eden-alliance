@@ -1,0 +1,4 @@
+---
+import { abexSeasons, seasonSlug } from '../lib/data';
+return Astro.redirect(`/abex/${seasonSlug(abexSeasons[0] ?? '')}/`);
+---

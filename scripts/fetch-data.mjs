@@ -15,6 +15,8 @@ const TABS = {
   web_guilds: 900001,
   web_expeditions: 900002,
   web_settings: 900003,
+  web_abex: 900004,
+  web_rift: 900005,
 };
 
 async function publishId() {
