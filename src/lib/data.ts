@@ -6,6 +6,7 @@ import expeditionsCsv from '../data/web_expeditions.csv?raw';
 import settingsCsv from '../data/web_settings.csv?raw';
 import abexCsv from '../data/web_abex.csv?raw';
 import riftCsv from '../data/web_rift.csv?raw';
+import formerNamesCsv from '../data/web_former_names.csv?raw';
 
 function parseCsv(text: string): Record<string, string>[] {
   const rows: string[][] = [];
@@ -116,8 +117,19 @@ export function guildsIn(category: string): Guild[] {
 export const categoryHeading = (category: string) =>
   activeGuilds.filter((g) => g.category === category).length > 1 && !/s$/i.test(category) ? `${category}s` : category;
 
+// Former names (web_former_names tab): an old spelling in a log -> the guild's name now.
+const formerNames = new Map(
+  parseCsv(formerNamesCsv)
+    .filter((r) => r.old_name && r.current_name)
+    .map((r) => [r.old_name.trim().toLowerCase(), r.current_name.trim()]),
+);
+/** The guild's current name for a name found in a log (Vespers -> Prodigy). */
+export const currentName = (name: string) => formerNames.get(name.trim().toLowerCase()) ?? name;
+/** The old name a row was logged under, or '' when it's the current name. */
+export const listedAs = (name: string) => (currentName(name) !== name ? name : '');
+
 const guildByName = new Map(guilds.map((g) => [g.name.toLowerCase(), g]));
-export const guildNamed = (name: string) => guildByName.get(name.toLowerCase());
+export const guildNamed = (name: string) => guildByName.get(currentName(name).toLowerCase());
 
 /** Category order on the directory: founding first, then sister, branch, regional, anything else. */
 const CATEGORY_ORDER = ['Founding Guild', 'Sister Guild', 'Branch Guild', 'Regional Guild'];
@@ -155,7 +167,7 @@ export function inkOn(hex: string): string {
 
 // ---------- Expeditions (one row per player, without player names) ----------
 
-interface ExpRow { expedition: string; guild: string; map: string; league: string }
+interface ExpRow { expedition: string; guild: string; listedAs: string; map: string; league: string }
 
 const isBlank = (v: string) => !v || /^n\/?a$/i.test(v);
 
@@ -163,7 +175,8 @@ const expRows: ExpRow[] = parseCsv(expeditionsCsv)
   .filter((r) => r.expedition && r.guild)
   .map((r) => ({
     expedition: r.expedition.toUpperCase(),
-    guild: r.guild,
+    guild: currentName(r.guild),
+    listedAs: listedAs(r.guild),
     map: isBlank(r.map) ? '' : r.map.toUpperCase(),
     league: isBlank(r.league) ? '' : r.league,
   }));
@@ -184,6 +197,8 @@ export interface Tally { key: string; count: number }
 export interface GuildExpedition {
   guild: string;
   guildRecord?: Guild;
+  /** Old names the guild was logged under that expedition. */
+  listedAs: string[];
   players: number;
   /** Players with a map entered. */
   mapped: number;
@@ -214,6 +229,7 @@ export function expedition(id: string): GuildExpedition[] {
     return {
       guild,
       guildRecord: guildNamed(guild),
+      listedAs: [...new Set(rs.map((r) => r.listedAs).filter(Boolean))],
       players: rs.length,
       mapped: rs.filter((r) => r.map).length,
       maps,
@@ -259,6 +275,7 @@ const seasonSort = (a: string, b: string) =>
 export interface AbexRow {
   season: string;
   guild: string;
+  listedAs: string;
   guildRecord?: Guild;
   server: number | null;
   region: number | null;
@@ -285,7 +302,8 @@ export const abex: AbexRow[] = parseCsv(abexCsv)
   .filter((r) => r.season && r.guild && !ABEX_HIDDEN.has(r.season.trim()))
   .map((r) => ({
     season: r.season.trim(),
-    guild: r.guild,
+    guild: currentName(r.guild),
+    listedAs: listedAs(r.guild),
     guildRecord: guildNamed(r.guild),
     server: num(r.server),
     region: num(r.region),
@@ -308,6 +326,7 @@ export interface RiftRow {
   floor: number | null;
   server: string;
   guild: string;
+  listedAs: string;
   guildRecord?: Guild;
 }
 
@@ -319,7 +338,8 @@ export const rift: RiftRow[] = parseCsv(riftCsv)
     player: r.player,
     floor: num(r.floor),
     server: r.server.replace(/^s/i, ''),
-    guild: r.guild,
+    guild: currentName(r.guild),
+    listedAs: listedAs(r.guild),
     guildRecord: guildNamed(r.guild),
   }));
 

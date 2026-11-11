@@ -42,7 +42,7 @@ const tier = (rank: number | null) => (rank == null ? '' : rank <= 5 ? 'gold' : 
                 <Emblem guild={r.guildRecord} size={26} />
                 <span>
                   {r.guildRecord ? <a href={`/guild/${r.guildRecord.id}/`}>{r.guild}</a> : r.guild}
-                  <span class="sub">Region {r.region ?? '—'}{r.server != null ? ` · S${r.server}` : ''}</span>
+                  <span class="sub">{r.listedAs && `Listed as ${r.listedAs} · `}Region {r.region ?? '—'}{r.server != null ? ` · S${r.server}` : ''}</span>
                 </span>
               </span>
             </td>

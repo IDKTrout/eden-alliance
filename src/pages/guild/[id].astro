@@ -64,7 +64,7 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
         <tbody>
           {history.map(({ id, entry }) => (
             <tr>
-              <td><a href={`/expedition/${id}/`}>{id}</a></td>
+              <td><a href={`/expedition/${id}/`}>{id}</a>{entry.listedAs.length > 0 && <span class="listed">listed as {entry.listedAs.join(', ')}</span>}</td>
               <td class="num">{entry.players}</td>
               <td>{entry.mainMap ? <span class="pill" title={mapLabel(entry.mainMap)} style={`background:${mapColor(entry.mainMap)};color:${inkOn(mapColor(entry.mainMap))}`}>{entry.mainMap}</span> : '—'}</td>
               <td>{entry.mainLeague ? <span class="pill" style={`background:${leagueColor(entry.mainLeague)};color:${inkOn(leagueColor(entry.mainLeague))}`}>{entry.mainLeague}</span> : '—'}</td>
@@ -84,7 +84,7 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
         <tbody>
           {abexRows.map((r) => (
             <tr>
-              <td><a href={`/abex/${seasonSlug(r.season)}/`}>{seasonName(r.season)}</a></td>
+              <td><a href={`/abex/${seasonSlug(r.season)}/`}>{seasonName(r.season)}</a>{r.listedAs && <span class="listed">listed as {r.listedAs}</span>}</td>
               <td class="num">{r.rank != null ? `#${r.rank}` : r.dnp ? 'DNP' : '—'}</td>
               <td class="num">{fmtDamage(r.damage)}{r.percent != null && <span class="muted"> · {r.percent.toFixed(2)}%</span>}</td>
               <td class="num">{r.time ? <strong class="fin">{r.time}</strong> : <span class="muted">DNF</span>}</td>
@@ -103,7 +103,7 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
         <tbody>
           {riftRows.map((r) => (
             <tr>
-              <td><a href={`/rift/${seasonSlug(r.season)}/`}>{seasonName(r.season)}</a></td>
+              <td><a href={`/rift/${seasonSlug(r.season)}/`}>{seasonName(r.season)}</a>{r.listedAs && <span class="listed">listed as {r.listedAs}</span>}</td>
               <td class="num">{r.place ?? '—'}</td>
               <td>{r.player}</td>
               <td class="num">{r.floor != null ? fmtInt(r.floor) : '—'}</td>
@@ -123,6 +123,7 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
 </Layout>
 
 <style>
+  .listed { display: block; font-size: .72rem; color: var(--muted); }
   .fin { color: var(--accent-ink); }
   .back { margin-bottom: -1.25rem; }
   .head { display: flex; align-items: center; gap: 1.25rem; }

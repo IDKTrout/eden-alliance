@@ -51,6 +51,7 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
             <span class="gname">
               <Emblem guild={g.guildRecord} size={22} />
               {g.guildRecord ? <a href={`/guild/${g.guildRecord.id}/`}>{g.guild}</a> : <span>{g.guild}</span>}
+              {g.listedAs.length > 0 && <span class="listed" title={`Logged as ${g.listedAs.join(', ')} this expedition`}>as {g.listedAs.join(', ')}</span>}
             </span>
             <StackBar parts={g[c.field]} total={g.players} color={c.color} label={c.label} />
             <span class="n">{g.players}</span>
@@ -66,7 +67,7 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
               const entered = g[c.field].reduce((s, t) => s + t.count, 0);
               return (
                 <tr>
-                  <td>{g.guild}</td>
+                  <td>{g.guild}{g.listedAs.length > 0 && <span class="listed"> (listed as {g.listedAs.join(', ')})</span>}</td>
                   {c.keys.map((k) => <td class="num">{count(g, c.field, k) || ''}</td>)}
                   <td class="num muted">{g.players - entered || ''}</td>
                   <td class="num">{g.players}</td>
@@ -88,6 +89,7 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
   .gname { display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .gname a { text-decoration: none; }
   .gname a:hover { text-decoration: underline; }
+  .listed { font-size: .72rem; color: var(--muted); }
   .n { font-size: .8rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
   @media (max-width: 520px) { .rows { grid-template-columns: 6rem 1fr 1.8rem; gap: .4rem .5rem; } }
 </style>

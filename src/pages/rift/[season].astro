@@ -40,6 +40,7 @@ const guildCount = new Set(rows.map((r) => r.guild)).size;
               <span class="gcell">
                 <Emblem guild={r.guildRecord} size={22} />
                 {r.guildRecord ? <a href={`/guild/${r.guildRecord.id}/`}>{r.guild}</a> : r.guild}
+                {r.listedAs && <span class="muted small">(as {r.listedAs})</span>}
               </span>
             </td>
             <td class="num hide-sm muted">{r.server ? `S${r.server}` : '—'}</td>
