@@ -1,3 +1,4 @@
 setting,value,note
 current_expedition,S13,"From Lists > Current Expedition. Read by edenafk.com; every web_* tab is published, the rest of the sheet is not."
-updated,1899-12-30,Last guild directory update
+updated,,Last guild directory update
+inactive_from,Hades: S10,"Inactive guilds and the first expedition they missed, like ""Hades: S10, Ignivar: S12"". The website leaves out their expedition rows from then on."

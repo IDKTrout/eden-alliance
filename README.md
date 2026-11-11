@@ -15,7 +15,7 @@ Everything comes from the Google Sheet **Eden Guild Alliance 4.1**. The site rea
 |---|---|---|
 | `web_guilds` | Discord Bot | name, order, category, leader, deputies, purpose, region, guild ID, status, colour, players. **No Discord IDs.** |
 | `web_expeditions` | Expedition Log | expedition, guild, map, league. **No player names.** |
-| `web_settings` | Lists | the current expedition, and when member counts were last updated |
+| `web_settings` | Lists, plus typed rows | the current expedition, when member counts were last updated, and `inactive_from` (typed in, like `Hades: S10, Ignivar: S12`): an inactive guild's expedition rows from that expedition on are left off the site |
 | `web_abex` | VoT Log | AbEx (Vault of Time) results for Eden guilds: season, guild, server, region, dim, time, damage, percent, rank. Season 2 is left off the site (before AbEx went global). |
 | `web_rift` | TR Log | Temporal Rift results for Eden players: season, place, player, floor, server, guild |
 | `web_former_names` | *(typed in directly)* | old guild names and the guild's name now (Vespers → Prodigy). Results logged under an old name are shown under the current guild, marked "listed as". |

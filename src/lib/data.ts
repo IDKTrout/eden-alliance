@@ -171,8 +171,23 @@ interface ExpRow { expedition: string; guild: string; listedAs: string; map: str
 
 const isBlank = (v: string) => !v || /^n\/?a$/i.test(v);
 
+const seasonNum = (id: string) => Number(id.replace(/\D/g, '')) || 0;
+
+// web_settings "inactive_from", like "Hades: S10, Ignivar: S12": a guild's expedition rows from
+// that expedition on are left out (the Expedition Log keeps copying their players in).
+const inactiveFrom = new Map(
+  (settings.inactive_from ?? '').split(/[,;]/)
+    .map((part) => part.split(':').map((x) => x.trim()))
+    .filter(([g, e]) => g && e)
+    .map(([g, e]) => [g.toLowerCase(), seasonNum(e)]),
+);
+const stillActiveIn = (guild: string, expedition: string) => {
+  const from = inactiveFrom.get(guild.toLowerCase());
+  return from == null || seasonNum(expedition) < from;
+};
+
 const expRows: ExpRow[] = parseCsv(expeditionsCsv)
-  .filter((r) => r.expedition && r.guild)
+  .filter((r) => r.expedition && r.guild && stillActiveIn(currentName(r.guild), r.expedition))
   .map((r) => ({
     expedition: r.expedition.toUpperCase(),
     guild: currentName(r.guild),
@@ -180,8 +195,6 @@ const expRows: ExpRow[] = parseCsv(expeditionsCsv)
     map: isBlank(r.map) ? '' : r.map.toUpperCase(),
     league: isBlank(r.league) ? '' : r.league,
   }));
-
-const seasonNum = (id: string) => Number(id.replace(/\D/g, '')) || 0;
 
 /** Expedition data before this season may not be accurate; those pages carry a note. */
 export const ACCURATE_FROM = 13;
