@@ -25,6 +25,13 @@ Map and league colours match the fills on the sheet's Lists tab; they are copied
 
 The full-size Eden logo is `assets/eden-logo-original.png` (not deployed; 2.9 MB). The sites use smaller copies made from it: `eden-logo.webp` (720 px on the home page, 400 px on the alliance site), `og.jpg` (link previews, 1200×630) and `apple-touch-icon.png`. The small crystal in headers and browser tabs stays as `favicon.svg`, because the full logo can't be read at that size.
 
+## Guild emblems
+
+Emblems come from the **Eden Guild Emblems** Drive folder, named after the guild like the sheet expects (`moon_sword.png`). The site shows `public/emblems/<name>.webp` (256 px); a guild without one shows its colour. To add or change one:
+
+1. Download the PNG into `assets/emblems/` (that folder isn't committed; Drive keeps the originals).
+2. Run `npm run emblems`, then commit the new `.webp` in `public/emblems/`.
+
 ## How it updates
 
 - `.github/workflows/refresh-data.yml` downloads the published tabs every 3 hours and commits any change to `src/data/`, which makes Cloudflare rebuild the site. To update right away: **Actions** tab → **Refresh sheet data** → **Run workflow**.

@@ -57,7 +57,18 @@ export interface Guild {
   status: string;
   color: string;
   players: number;
+  /** Path of the guild's emblem, or '' if there's no file in public/emblems/ for it yet. */
+  emblem: string;
 }
+
+// Emblems are named after the guild like the Drive folder: Moon Sword -> moon_sword.webp.
+const emblemFiles = new Set(
+  Object.keys(import.meta.glob('/public/emblems/*.webp')).map((p) => p.replace('/public', '')),
+);
+const emblemFor = (name: string) => {
+  const path = `/emblems/${name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}.webp`;
+  return emblemFiles.has(path) ? path : '';
+};
 
 export const guilds: Guild[] = parseCsv(guildsCsv)
   .filter((r) => r.name && r.guild_id)
@@ -73,8 +84,20 @@ export const guilds: Guild[] = parseCsv(guildsCsv)
     status: r.status || 'Active',
     color: /^#[0-9a-f]{6}$/i.test(r.color) ? r.color.toLowerCase() : '#8b96a8',
     players: num(r.players) ?? 0,
+    emblem: emblemFor(r.name),
   }))
   .sort((a, b) => a.order - b.order);
+
+/** Guilds in one category, in display order. Regional guilds go by region, then guild ID. */
+export function guildsIn(category: string): Guild[] {
+  const list = guilds.filter((g) => g.category === category);
+  if (category !== 'Regional Guild') return list;
+  return [...list].sort((a, b) => (a.region ?? 999) - (b.region ?? 999) || Number(a.id) - Number(b.id));
+}
+
+/** Heading for a category: "Branch Guilds" when it has more than one guild. */
+export const categoryHeading = (category: string) =>
+  guilds.filter((g) => g.category === category).length > 1 && !/s$/i.test(category) ? `${category}s` : category;
 
 const guildByName = new Map(guilds.map((g) => [g.name.toLowerCase(), g]));
 export const guildNamed = (name: string) => guildByName.get(name.toLowerCase());

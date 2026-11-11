@@ -61,6 +61,13 @@
     .projects h2 { margin: 0; font-family: 'Cinzel', Georgia, serif; font-size: 1.35rem; }
     .projects p { margin: 0; color: var(--muted); font-size: .95rem; }
     .go { margin-top: auto; padding-top: .4rem; font-size: .88rem; font-weight: 500; color: var(--accent-ink); }
+    .discord {
+      display: inline-flex; align-items: center; gap: .6rem; margin-top: .4rem; padding: .7rem 1.3rem;
+      background: #5865f2; color: #fff; border-radius: 10px; text-decoration: none; font-weight: 600;
+      box-shadow: 0 6px 20px rgba(88, 101, 242, .35); transition: background .15s;
+    }
+    .discord:hover { background: #4752c4; }
+    .discord:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
     footer { text-align: center; padding: 1.5rem 16px 2rem; color: var(--muted); font-size: .82rem; }
   </style>
 </head>
@@ -69,6 +76,10 @@
     <section class="hero">
       <h1><img class="logo" src="/eden-logo.webp" width="720" height="720" alt="Eden" fetchpriority="high" /></h1>
       <p class="tag">The Eden Guild Alliance and the tools we build for AFK Arena Companions.</p>
+      <a class="discord" href="https://discord.gg/joineden" rel="noopener">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18.2 18.2 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.2 18.1a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.7 19.7 0 0 0 6-3c.6-5.2-.9-9.7-3.5-13.7ZM8 15.3c-1.2 0-2.1-1.1-2.1-2.4s.9-2.4 2.1-2.4 2.2 1.1 2.1 2.4c0 1.3-.9 2.4-2.1 2.4Zm8 0c-1.2 0-2.1-1.1-2.1-2.4s.9-2.4 2.1-2.4 2.2 1.1 2.1 2.4c0 1.3-.9 2.4-2.1 2.4Z"/></svg>
+        <span>Join our Discord</span>
+      </a>
     </section>
 
     <ul class="projects">
@@ -90,6 +101,6 @@
       </li>
     </ul>
   </main>
-  <footer>edenafk.com</footer>
+  <footer>edenafk.com · <a href="https://discord.gg/joineden" rel="noopener">discord.gg/joineden</a></footer>
 </body>
 </html>

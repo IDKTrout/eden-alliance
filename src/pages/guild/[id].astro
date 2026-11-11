@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
+import Emblem from '../../components/Emblem.astro';
 import { guilds, guildHistory, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, type Guild } from '../../lib/data';
 
 export function getStaticPaths() {
@@ -12,11 +13,14 @@ const current = history.find((h) => h.id === currentExpedition)?.entry;
 const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
 ---
 <Layout title={g.name} description={`${g.name}: ${g.category} of the Eden Alliance in Region ${g.region}. Guild ID ${g.id}.`}>
-  <section class="page-head head" style={`--gc:${g.color}`}>
-    <a class="muted small" href="/">← All guilds</a>
-    <span class="eyebrow">{g.category} · Region {g.region ?? '—'}</span>
-    <h1><span class="dot big" style={`background:${g.color}`}></span>{g.name}</h1>
-    {g.purpose && <p class="lede">{g.purpose}</p>}
+  <a class="muted small back" href="/">← All guilds</a>
+  <section class="head" style={`--gc:${g.color}`}>
+    <Emblem guild={g} size={128} eager />
+    <div class="page-head">
+      <span class="eyebrow">{g.category} · Region {g.region ?? '—'}</span>
+      <h1>{g.name}</h1>
+      {g.purpose && <p class="lede">{g.purpose}</p>}
+    </div>
   </section>
 
   <div class="tiles">
@@ -73,14 +77,15 @@ const sameRegion = guilds.filter((o) => o.region === g.region && o.id !== g.id);
   {sameRegion.length > 0 && (
     <section class="card">
       <h2>Also in Region {g.region}</h2>
-      <div class="chips">{sameRegion.map((o) => <a class="chip" href={`/guild/${o.id}/`}><span class="dot" style={`background:${o.color}`}></span>{o.name}</a>)}</div>
+      <div class="chips">{sameRegion.map((o) => <a class="chip" href={`/guild/${o.id}/`}><Emblem guild={o} size={22} />{o.name}</a>)}</div>
     </section>
   )}
 </Layout>
 
 <style>
-  .head h1 { display: flex; align-items: center; gap: .6rem; }
-  .dot.big { width: 1.1rem; height: 1.1rem; }
+  .back { margin-bottom: -1.25rem; }
+  .head { display: flex; align-items: center; gap: 1.25rem; }
+  @media (max-width: 560px) { .head { flex-direction: column; align-items: flex-start; gap: .5rem; } }
   .v.id { font-family: var(--font-body); letter-spacing: .02em; }
   .v.status { font-size: 1.2rem; }
   .copy { align-self: flex-start; margin-top: .2rem; font: inherit; font-size: .78rem; background: var(--raised); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: .15rem .55rem; cursor: pointer; }

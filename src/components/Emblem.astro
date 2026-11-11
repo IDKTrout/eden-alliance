@@ -1,0 +1,14 @@
+---
+// A guild's emblem from public/emblems/, or a disc in the guild's colour when it has none.
+import type { Guild } from '../lib/data';
+interface Props { guild?: Guild; size?: number; eager?: boolean }
+const { guild, size = 20, eager = false } = Astro.props;
+---
+{guild?.emblem
+  ? <img class="emblem" src={guild.emblem} width={size} height={size} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" style={`width:${size}px;height:${size}px`} />
+  : <span class="emblem none" style={`width:${size}px;height:${size}px;background:${guild?.color ?? 'var(--line)'}`} aria-hidden="true"></span>}
+
+<style>
+  .emblem { flex: none; display: inline-block; object-fit: contain; }
+  .none { border-radius: 50%; transform: scale(.6); box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 20%, transparent); }
+</style>

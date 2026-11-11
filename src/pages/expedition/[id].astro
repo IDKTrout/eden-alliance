@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
+import Emblem from '../../components/Emblem.astro';
 import { expeditionIds, currentExpedition, expedition, keysUsed, mapColor, mapLabel, leagueColor, inkOn, pct, fmtInt, mayBeInaccurate, ACCURACY_NOTE } from '../../lib/data';
 
 export function getStaticPaths() {
@@ -48,7 +49,7 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
         {list.map((g) => (
           <>
             <span class="gname">
-              <span class="dot" style={`background:${g.guildRecord?.color ?? 'var(--line)'}`}></span>
+              <Emblem guild={g.guildRecord} size={22} />
               {g.guildRecord ? <a href={`/guild/${g.guildRecord.id}/`}>{g.guild}</a> : <span>{g.guild}</span>}
             </span>
             <StackBar parts={g[c.field]} total={g.players} color={c.color} label={c.label} />

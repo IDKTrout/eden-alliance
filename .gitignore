@@ -17,3 +17,6 @@ Thumbs.db
 .vscode/
 *.log
 src/env.d.ts
+
+# Full-size guild emblems (the originals live in the Eden Guild Emblems Drive folder)
+assets/emblems/

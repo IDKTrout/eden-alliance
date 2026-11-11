@@ -8,9 +8,13 @@
     "dev": "astro dev",
     "build": "astro build",
     "build:fresh": "node scripts/fetch-data.mjs && astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "emblems": "node scripts/emblems.mjs"
   },
   "dependencies": {
     "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.4"
   }
 }
