@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
 import Emblem from '../../components/Emblem.astro';
-import { expeditionIds, currentExpedition, expedition, keysUsed, mapColor, mapLabel, leagueColor, inkOn, pct, fmtInt, mayBeInaccurate, ACCURACY_NOTE } from '../../lib/data';
+import { expeditionIds, currentExpedition, expedition, keysUsed, leagueGroups, mapColor, mapLabel, leagueColor, inkOn, pct, fmtInt, mayBeInaccurate, ACCURACY_NOTE } from '../../lib/data';
 
 export function getStaticPaths() {
   return expeditionIds.map((id) => ({ params: { id } }));
@@ -10,11 +10,11 @@ export function getStaticPaths() {
 const { id } = Astro.params as { id: string };
 const list = expedition(id);
 const maps = keysUsed(list, 'maps');
-const leagues = keysUsed(list, 'leagues');
+const byMap = leagueGroups(id);
 const players = list.reduce((s, g) => s + g.players, 0);
 const mapped = list.reduce((s, g) => s + g.mapped, 0);
 const anyBlank = list.some((g) => g.mapped < g.players);
-const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) => g[field].find((t) => t.key === k)?.count ?? 0;
+const count = (g: (typeof list)[number], k: string) => g.maps.find((t) => t.key === k)?.count ?? 0;
 ---
 <Layout title={`Expedition ${id}`} description={`Which maps and leagues each Eden Alliance guild played in expedition ${id}.`}>
   <section class="page-head">
@@ -35,50 +35,76 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
     <div class="tile"><span class="k">Map entered</span><span class="v">{pct(mapped, players)}%</span></div>
   </div>
 
-  {[
-    { field: 'maps' as const, title: 'Maps', keys: maps, color: mapColor, label: mapLabel },
-    { field: 'leagues' as const, title: 'Leagues', keys: leagues, color: leagueColor, label: (k: string) => `League ${k}` },
-  ].map((c) => (
-    <section class="card">
-      <h2>{c.title}</h2>
-      <ul class="legend">
-        {c.keys.map((k) => <li><span class="sw" style={`background:${c.color(k)}`}></span>{c.label(k)}</li>)}
-        {anyBlank && <li><span class="sw blank"></span>Not entered</li>}
-      </ul>
-      <div class="rows">
-        {list.map((g) => (
-          <>
-            <span class="gname">
-              <Emblem guild={g.guildRecord} size={22} />
-              {g.guildRecord ? <a href={`/guild/${g.guildRecord.id}/`}>{g.guild}</a> : <span>{g.guild}</span>}
-              {g.listedAs.length > 0 && <span class="listed" title={`Logged as ${g.listedAs.join(', ')} this expedition`}>as {g.listedAs.join(', ')}</span>}
-            </span>
-            <StackBar parts={g[c.field]} total={g.players} color={c.color} label={c.label} />
-            <span class="n">{g.players}</span>
-          </>
-        ))}
-      </div>
-      <details class="table-view">
-        <summary>Show as a table</summary>
-        <div class="table-wrap"><table class="data">
-          <thead><tr><th>Guild</th>{c.keys.map((k) => <th class="num"><span class="pill" title={c.label(k)} style={`background:${c.color(k)};color:${inkOn(c.color(k))}`}>{k}</span></th>)}<th class="num">Not entered</th><th class="num">Players</th></tr></thead>
-          <tbody>
-            {list.map((g) => {
-              const entered = g[c.field].reduce((s, t) => s + t.count, 0);
-              return (
-                <tr>
-                  <td>{g.guild}{g.listedAs.length > 0 && <span class="listed"> (listed as {g.listedAs.join(', ')})</span>}</td>
-                  {c.keys.map((k) => <td class="num">{count(g, c.field, k) || ''}</td>)}
-                  <td class="num muted">{g.players - entered || ''}</td>
-                  <td class="num">{g.players}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table></div>
-      </details>
-    </section>
-  ))}
+  <section class="card">
+    <h2>Maps</h2>
+    <ul class="legend">
+      {maps.map((k) => <li><span class="sw" style={`background:${mapColor(k)}`}></span>{mapLabel(k)}</li>)}
+      {anyBlank && <li><span class="sw blank"></span>Not entered</li>}
+    </ul>
+    <div class="rows">
+      {list.map((g) => (
+        <>
+          <span class="gname">
+            <Emblem guild={g.guildRecord} size={22} />
+            {g.guildRecord ? <a href={`/guild/${g.guildRecord.id}/`}>{g.guild}</a> : <span>{g.guild}</span>}
+            {g.listedAs.length > 0 && <span class="listed" title={`Logged as ${g.listedAs.join(', ')} this expedition`}>as {g.listedAs.join(', ')}</span>}
+          </span>
+          <StackBar parts={g.maps} total={g.players} color={mapColor} label={mapLabel} />
+          <span class="n">{g.players}</span>
+        </>
+      ))}
+    </div>
+    <details class="table-view">
+      <summary>Show as a table</summary>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Guild</th>{maps.map((k) => <th class="num"><span class="pill" title={mapLabel(k)} style={`background:${mapColor(k)};color:${inkOn(mapColor(k))}`}>{k}</span></th>)}<th class="num">Not entered</th><th class="num">Players</th></tr></thead>
+        <tbody>
+          {list.map((g) => (
+            <tr>
+              <td>{g.guild}{g.listedAs.length > 0 && <span class="listed"> (listed as {g.listedAs.join(', ')})</span>}</td>
+              {maps.map((k) => <td class="num">{count(g, k) || ''}</td>)}
+              <td class="num muted">{g.players - g.mapped || ''}</td>
+              <td class="num">{g.players}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Leagues</h2>
+    <p class="muted small">Each map has its own leagues, so guilds are only together when they share both the map and the league number. Not enrolled and Solo have no league.</p>
+    {byMap.length === 0 && <p class="muted">No leagues entered yet.</p>}
+    <div class="maps">
+      {byMap.map(({ map, groups }) => (
+        <section class="mapgroup" style={`--mc:${mapColor(map)}`}>
+          <h3><span class="pill" style={`background:${mapColor(map)};color:${inkOn(mapColor(map))}`}>{map}</span>{mapLabel(map)}</h3>
+          <ul class="leagues">
+            {groups.map((lg) => (
+              <li class:list={['lg', { shared: lg.guilds.length > 1 && lg.league }]}>
+                <span class="lg-name">
+                  {lg.league
+                    ? <><span class="pill" style={`background:${leagueColor(lg.league)};color:${inkOn(leagueColor(lg.league))}`}>{lg.league}</span><span>League {lg.league}</span></>
+                    : <span class="muted">League not entered</span>}
+                </span>
+                <span class="lg-guilds">
+                  {lg.guilds.map((x) => (
+                    <span class="lg-g">
+                      <Emblem guild={x.guildRecord} size={20} />
+                      {x.guildRecord ? <a href={`/guild/${x.guildRecord.id}/`}>{x.guild}</a> : x.guild}
+                      {x.listedAs.length > 0 && <span class="listed">(as {x.listedAs.join(', ')})</span>}
+                      <span class="cnt">{x.count}</span>
+                    </span>
+                  ))}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </section>
 </Layout>
 
 <style>
@@ -90,6 +116,18 @@ const count = (g: (typeof list)[number], field: 'maps' | 'leagues', k: string) =
   .gname a { text-decoration: none; }
   .gname a:hover { text-decoration: underline; }
   .listed { font-size: .72rem; color: var(--muted); }
+  .maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: .8rem; }
+  .mapgroup { border: 1px solid var(--line); border-left: 4px solid var(--mc); border-radius: 8px; padding: .65rem .8rem; display: flex; flex-direction: column; gap: .45rem; }
+  .mapgroup h3 { display: flex; align-items: center; gap: .5rem; font-size: .95rem; font-weight: 600; }
+  .leagues { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .lg { display: grid; grid-template-columns: 7.5rem 1fr; gap: .6rem; align-items: start; padding: .4rem 0; border-top: 1px solid var(--line); }
+  .lg-name { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; }
+  .lg-guilds { display: flex; flex-wrap: wrap; gap: .3rem .9rem; }
+  .lg-g { display: inline-flex; align-items: center; gap: .35rem; font-size: .88rem; }
+  .lg-g a { text-decoration: none; }
+  .lg-g a:hover { text-decoration: underline; }
+  .cnt { font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lg.shared .lg-name span:last-child { font-weight: 600; }
   .n { font-size: .8rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
   @media (max-width: 520px) { .rows { grid-template-columns: 6rem 1fr 1.8rem; gap: .4rem .5rem; } }
 </style>

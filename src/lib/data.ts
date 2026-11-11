@@ -203,10 +203,17 @@ export interface GuildExpedition {
   /** Players with a map entered. */
   mapped: number;
   maps: Tally[];
+  /** Players per league, keyed "A·6": a league only exists within its map. */
   leagues: Tally[];
   mainMap: string;
+  /** Most common league, keyed "A·6", or ''. */
   mainLeague: string;
 }
+
+/** "A·6" -> { map: 'A', league: '6' }. */
+export const splitLeague = (key: string) => { const [map = '', league = ''] = key.split('·'); return { map, league }; };
+/** Maps that have no leagues: Not enrolled and Solo. */
+export const NO_LEAGUE_MAPS = new Set(['NE', 'S']);
 
 function tally(values: string[], order: string[]): Tally[] {
   const counts = new Map<string, number>();
@@ -218,6 +225,7 @@ const top = (t: Tally[]) => [...t].sort((a, b) => b.count - a.count)[0]?.key ?? 
 
 const mapOrder = Object.keys(MAPS);
 const leagueOrder = Object.keys(LEAGUES);
+const leagueKeyOrder = mapOrder.flatMap((m) => leagueOrder.map((l) => `${m}·${l}`));
 
 export function expedition(id: string): GuildExpedition[] {
   const rows = expRows.filter((r) => r.expedition === id);
@@ -225,7 +233,7 @@ export function expedition(id: string): GuildExpedition[] {
   for (const r of rows) byGuild.set(r.guild, [...(byGuild.get(r.guild) ?? []), r]);
   return [...byGuild].map(([guild, rs]) => {
     const maps = tally(rs.map((r) => r.map), mapOrder);
-    const leagues = tally(rs.map((r) => r.league), leagueOrder);
+    const leagues = tally(rs.map((r) => (r.map && r.league && !NO_LEAGUE_MAPS.has(r.map) ? `${r.map}·${r.league}` : '')), leagueKeyOrder);
     return {
       guild,
       guildRecord: guildNamed(guild),
@@ -240,9 +248,42 @@ export function expedition(id: string): GuildExpedition[] {
   }).sort((a, b) => (a.guildRecord?.order ?? 999) - (b.guildRecord?.order ?? 999) || a.guild.localeCompare(b.guild));
 }
 
+export interface LeagueGroup {
+  map: string;
+  /** League number, or '' for players on this map with no league entered. */
+  league: string;
+  players: number;
+  guilds: { guild: string; guildRecord?: Guild; listedAs: string[]; count: number }[];
+}
+
+/** Who is together: one group per map and league, with the guilds in it, in the sheet's map/league order. */
+export function leagueGroups(id: string): { map: string; groups: LeagueGroup[] }[] {
+  const rows = expRows.filter((r) => r.expedition === id && r.map && !NO_LEAGUE_MAPS.has(r.map));
+  const byKey = new Map<string, ExpRow[]>();
+  for (const r of rows) {
+    const k = `${r.map}·${r.league}`;
+    byKey.set(k, [...(byKey.get(k) ?? []), r]);
+  }
+  const rankOf = (arr: string[], v: string) => { const i = arr.indexOf(v); return i < 0 ? 999 : i; };
+  const groups: LeagueGroup[] = [...byKey].map(([k, rs]) => {
+    const { map, league } = splitLeague(k);
+    const byGuild = new Map<string, ExpRow[]>();
+    for (const r of rs) byGuild.set(r.guild, [...(byGuild.get(r.guild) ?? []), r]);
+    return {
+      map, league, players: rs.length,
+      guilds: [...byGuild].map(([guild, gr]) => ({
+        guild, guildRecord: guildNamed(guild), listedAs: [...new Set(gr.map((r) => r.listedAs).filter(Boolean))], count: gr.length,
+      })).sort((a, b) => b.count - a.count || a.guild.localeCompare(b.guild)),
+    };
+  }).sort((a, b) => rankOf(mapOrder, a.map) - rankOf(mapOrder, b.map) || a.map.localeCompare(b.map)
+    || (a.league === '' ? 1 : 0) - (b.league === '' ? 1 : 0) || rankOf(leagueOrder, a.league) - rankOf(leagueOrder, b.league));
+  const maps = [...new Set(groups.map((g) => g.map))];
+  return maps.map((map) => ({ map, groups: groups.filter((g) => g.map === map) }));
+}
+
 /** Maps and leagues actually used in an expedition, in the sheet's order. */
 export function keysUsed(list: GuildExpedition[], field: 'maps' | 'leagues'): string[] {
-  const order = field === 'maps' ? mapOrder : leagueOrder;
+  const order = field === 'maps' ? mapOrder : leagueKeyOrder;
   return tally(list.flatMap((g) => g[field].flatMap((t) => Array(t.count).fill(t.key))), order).map((t) => t.key);
 }
 

@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
 import Emblem from '../../components/Emblem.astro';
-import { guilds, guildHistory, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, abex, abexSeasons, rift, riftSeasons, seasonSlug, seasonName, fmtDamage, fmtInt, type Guild } from '../../lib/data';
+import { guilds, guildHistory, leagueGroups, splitLeague, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, abex, abexSeasons, rift, riftSeasons, seasonSlug, seasonName, fmtDamage, fmtInt, type Guild } from '../../lib/data';
 
 export function getStaticPaths() {
   return guilds.map((g) => ({ params: { id: g.id }, props: { g } }));
@@ -12,6 +12,14 @@ const history = guildHistory(g);
 const current = history.find((h) => h.id === currentExpedition)?.entry;
 const abexRows = abexSeasons.flatMap((s) => abex.filter((r) => r.season === s && r.guildRecord?.id === g.id));
 const riftRows = riftSeasons.flatMap((s) => rift.filter((r) => r.season === s && r.guildRecord?.id === g.id).sort((a, b) => (a.place ?? 1e9) - (b.place ?? 1e9)));
+// This guild's leagues in the current expedition, with the other guilds in the same map and league.
+const myLeagues = current
+  ? current.leagues.map((t) => {
+      const { map, league } = splitLeague(t.key);
+      const group = leagueGroups(currentExpedition).find((m) => m.map === map)?.groups.find((x) => x.league === league);
+      return { map, league, count: t.count, others: (group?.guilds ?? []).filter((x) => x.guildRecord?.id !== g.id) };
+    }).sort((a, b) => b.count - a.count)
+  : [];
 const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.id !== g.id);
 ---
 <Layout title={g.name} description={`${g.name}: ${g.active ? '' : 'former '}${g.category} of the Eden Alliance in Region ${g.region}.${g.gameId ? ` Guild ID ${g.gameId}.` : ''}`}>
@@ -50,8 +58,20 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
       <p class="muted small">{current.mapped} of {current.players} players have a map entered ({pct(current.mapped, current.players)}%). <a href={`/expedition/${currentExpedition}/`}>All guilds →</a></p>
       <div class="bars">
         <span class="bl">Maps</span><StackBar parts={current.maps} total={current.players} color={mapColor} label={mapLabel} />
-        <span class="bl">Leagues</span><StackBar parts={current.leagues} total={current.players} color={leagueColor} label={(k) => `League ${k}`} />
       </div>
+      {myLeagues.length > 0 && (
+        <ul class="myleagues">
+          {myLeagues.map((l) => (
+            <li>
+              <span class="pill" style={`background:${mapColor(l.map)};color:${inkOn(mapColor(l.map))}`}>{l.map}</span>
+              <span class="pill" style={`background:${leagueColor(l.league)};color:${inkOn(leagueColor(l.league))}`}>{l.league}</span>
+              <span><b>Map {l.map}, League {l.league}</b>: {l.count} player{l.count === 1 ? '' : 's'}{l.others.length > 0
+                ? <span class="muted">, with {l.others.map((o, i) => <>{i > 0 && ', '}{o.guildRecord ? <a href={`/guild/${o.guildRecord.id}/`}>{o.guild}</a> : o.guild} ({o.count})</>)}</span>
+                : <span class="muted">, no other Eden guild</span>}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )}
 
@@ -67,7 +87,7 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
               <td><a href={`/expedition/${id}/`}>{id}</a>{entry.listedAs.length > 0 && <span class="listed">listed as {entry.listedAs.join(', ')}</span>}</td>
               <td class="num">{entry.players}</td>
               <td>{entry.mainMap ? <span class="pill" title={mapLabel(entry.mainMap)} style={`background:${mapColor(entry.mainMap)};color:${inkOn(mapColor(entry.mainMap))}`}>{entry.mainMap}</span> : '—'}</td>
-              <td>{entry.mainLeague ? <span class="pill" style={`background:${leagueColor(entry.mainLeague)};color:${inkOn(leagueColor(entry.mainLeague))}`}>{entry.mainLeague}</span> : '—'}</td>
+              <td>{entry.mainLeague ? (() => { const { map, league } = splitLeague(entry.mainLeague); return <span class="pill" title={`Map ${map}, League ${league}`} style={`background:${leagueColor(league)};color:${inkOn(leagueColor(league))}`}>{map}·{league}</span>; })() : '—'}</td>
               <td class="num">{pct(entry.mapped, entry.players)}%</td>
             </tr>
           ))}
@@ -124,6 +144,11 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
 
 <style>
   .listed { display: block; font-size: .72rem; color: var(--muted); }
+  .myleagues { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; font-size: .9rem; }
+  .myleagues li { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+  .myleagues b { font-weight: 600; }
+  .myleagues a { text-decoration: none; }
+  .myleagues a:hover { text-decoration: underline; }
   .fin { color: var(--accent-ink); }
   .back { margin-bottom: -1.25rem; }
   .head { display: flex; align-items: center; gap: 1.25rem; }
