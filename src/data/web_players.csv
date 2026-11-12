@@ -111,7 +111,7 @@ Moon Sword,Vintony,41M,,1432247,S79,Português
 Moon Sword,Waveform,64M,,1605182,S82,Русский
 Moon Sword,Геацинт,91M,,1445942,S79,Русский
 Moon Sword,Кузя Лакомкин,66M,,1209060,S72,Русский
-Moon Sword,Нов.игрок,97M,,1466430,S78,Русский
+Moon Sword,Нов.игрок (1466430),97M,,1466430,S78,Русский
 Moon Sword,Чекист,52M,,1380870,S76,Русский
 Moon Sword,新プレイヤー,52M,,1570618,S82,日本語
 Moon Sword,蘇淺君,44M,,1440802,S79,中文简体
@@ -146,7 +146,7 @@ Moon Sword,马拉戈壁,80M,,1153299,S72,中文简体
 6,Mina,49M,,2248617,S107,English
 6,Neostell,76M,,2212673,S105,Français
 6,Nevada,54M,,2036732,S97,English
-6,New Player,35M,,2035915,S97,English
+6,New Player (2035915),35M,,2035915,S97,English
 6,Nezrail,6483K,,2046281,S96,Русский
 6,Ninnja,40M,,2225569,S107,English
 6,oooo,55M,,2231474,S106,中文简体
@@ -271,8 +271,8 @@ Justice,Lilith,43M,,3802278,S179,Tiếng Việt
 Justice,Lyksor,41M,,3942233,S186,Русский
 Justice,mèo mập,40M,,3716974,S175,Tiếng Việt
 Justice,Miaulala,52M,19,3772924,S177,English
-Justice,New Player,38M,,3853889,S181,English
-Justice,New Player,53M,18,3853889,S181,English
+Justice,New Player (3853889),38M,,3853889,S181,English
+Justice,New Player (3767000),53M,18,3767000,S177,English
 Justice,Papa smerf,46M,,4232776,S183,Polski
 Justice,Paprica,52M,22,3866685,S182,Indonesia
 Justice,patebeats,45M,,3826477,S180,English
@@ -356,7 +356,7 @@ Drakonis,B.o.B,36M,,4259797,S201,English
 Drakonis,Bobo,38M,,4337917,S205,Русский
 Drakonis,Butvilas,55M,,4277170,S202,Русский
 Drakonis,chezrey,77M,,4244495,S201,Español
-Drakonis,신규 유저,55M,,4259351,S201,한국어
+Drakonis,신규 유저 (4259351),55M,,4259351,S201,한국어
 Drakonis,無名,47M,,4398774,S207,中文繁體
 Drakonis,CiaoMeCrazy,52M,,4428005,S208,English
 Drakonis,Cibule,47M,,4380450,S206,English
@@ -427,14 +427,14 @@ Vyraxus,HitMeHard,26M,,4522927,S210,English
 Vyraxus,hitori,27M,,4241807,S200,Русский
 Vyraxus,jiraiya,37M,,4625395,S211,English
 Vyraxus,Kami,39M,,4269524,S202,Français
-Vyraxus,신규 유저,34M,,4718914,S212,한국어
+Vyraxus,신규 유저 (4718914),34M,,4718914,S212,한국어
 Vyraxus,l3é l3a,38M,,4413313,S208,Tiếng Việt
 Vyraxus,LEVYD,42M,,4623358,S211,English
 Vyraxus,lulalu,48M,,4524663,S210,English
 Vyraxus,Mathe,44M,,4661269,S212,English
 Vyraxus,Mist,36M,,4223569,S200,English
 Vyraxus,Moelder,29M,,5394641,S201,Français
-Vyraxus,New Player,27M,,4255707,S201,English
+Vyraxus,New Player (4255707),27M,,4255707,S201,English
 Vyraxus,Nuovo Giocatore,36M,,4711330,S212,Italiano
 Vyraxus,p.reiso,31M,,4709922,S212,Español
 Vyraxus,pak1sto,41M,,4360997,S205,Русский
@@ -543,7 +543,7 @@ Pride,mD,74M,1,5541857,S234,Русский
 Pride,Md Shanto,48M,5,5528618,S234,English
 Pride,NaiNa,47M,12,5541176,S234,Tiếng Việt
 Pride,Namsirak,55M,7,5650802,S239,Indonesia
-Pride,New Player,46M,21,5616090,S238,English
+Pride,New Player (5616090),46M,21,5616090,S238,English
 Pride,Noxx,44M,,5627701,S238,Русский
 Pride,petanplay,44M,,5615116,S238,English
 Pride,RAYD ZP UA,38M,,5601929,S237,Русский
@@ -703,7 +703,7 @@ ANTI,WAAHEAD,20M,,8082709,S345,Русский
 ANTI,Xepto,29M,,8003704,S341,English
 ANTI,Ася,9137K,,8042221,S343,Русский
 ANTI,Концлагерь,27M,,8056300,S343,Русский
-ANTI,Нов.игрок,27M,,8156159,S343,Русский
+ANTI,Нов.игрок (8156159),27M,,8156159,S343,Русский
 ANTI,Тыгыдык,27M,,8021586,S342,Русский
 ANTI,かくちゃん,31M,25,8045535,S343,English
 ANTI,けくちゃん,35M,23,8004007,S341,English
@@ -748,7 +748,7 @@ Vorpal,nlhochi,28M,,7943882,S338,English
 Vorpal,no good in bad,22M,,7972880,S340,العربية
 Vorpal,nouveau joueur,19M,,7962740,S339,Français
 Vorpal,Nullsight,16M,,7978567,S340,Türkçe
-Vorpal,Nvo Jugador,27M,,7978879,S340,Español
+Vorpal,Nvo Jugador (7978879),27M,,7978879,S340,Español
 Vorpal,rikydo,35M,19,7943626,S338,Русский
 Vorpal,Rippu,25M,,7983460,S340,Deutsch
 Vorpal,SeñorBuu👻,29M,,8020552,S342,Español
@@ -798,7 +798,7 @@ StarSky,Mikael,22M,,8024793,S342,Português
 StarSky,Niki163,24M,,8085730,S345,Русский
 StarSky,Norak,16M,,8048755,S343,English
 StarSky,Nowy gracz,1999K,,7975416,S340,Polski
-StarSky,Nvo Jugador,25M,,7934472,S338,Español
+StarSky,Nvo Jugador (7934472),25M,,7934472,S338,Español
 StarSky,OutOfMyself,25M,,7944406,S338,Русский
 StarSky,Pashkynson,16M,,7943053,S338,Русский
 StarSky,Pokeplaza,19M,,8091928,S345,English
@@ -818,10 +818,10 @@ StarSky,Zoe,6352K,,8050151,S343,Deutsch
 StarSky,zzihhhn,4619K,,7977793,S340,Русский
 StarSky,Лоль,9830K,,7943670,S338,Русский
 StarSky,Мичикола,7444K,,7965521,S339,Русский
-StarSky,Нов.игрок,16M,,7934629,S338,Русский
+StarSky,Нов.игрок (7934629),16M,,7934629,S338,Русский
 StarSky,Фанга,20M,,7926771,S338,Русский
 StarSky,ผู้เล่นใหม่,15M,,7972440,S340,ภาษาไทย
-StarSky,신규 유저,23M,,7938216,S338,한국어
+StarSky,신규 유저 (7938216),23M,,7938216,S338,한국어
 StarSky,쪼꼬몽,25M,,7930573,S338,한국어
 StarSky,關史地瓜泥,5463K,,8079820,S345,中文繁體
 Prodigy,🎧BLUE_BEE♪,26M,,7927946,S338,Tiếng Việt
@@ -867,8 +867,8 @@ Prodigy,Versh13rus,757K,,7933364,S338,Русский
 Prodigy,Вайвай,23M,,8089711,S345,Русский
 Prodigy,Лис,28M,,7926750,S338,Русский
 Prodigy,Маэстро,18M,,8065230,S344,Русский
-Prodigy,Нов.игрок,4328K,,7989489,S340,Русский
-Prodigy,신규 유저,246K,,7998015,S341,한국어
+Prodigy,Нов.игрок (7989489),4328K,,7989489,S340,Русский
+Prodigy,신규 유저 (7998015),246K,,7998015,S341,한국어
 Prodigy,凯库酱,424K,,9647031,S341,English
 Prodigy,武则天,25M,,7945210,S338,Русский
 NYX,Kaelor (L),26M,,8186183,S351,Polski
