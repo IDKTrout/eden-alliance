@@ -27,6 +27,7 @@ const count = (g: (typeof list)[number], k: string) => g.maps.find((t) => t.key 
     {mayBeInaccurate(id)
       ? <p class="note" role="note"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3 2 21h20L12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="M12 10v5M12 18v.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg><span><strong>Note:</strong> {ACCURACY_NOTE}</span></p>
       : <p class="muted small">{ACCURACY_NOTE}</p>}
+    {id === currentExpedition && <p class="help small">Data is entered by hand by a member of each guild. If you'd like to help, please contact <a href="https://discord.com/users/224930060694585345" target="_blank" rel="noopener">IDKTrout</a> on Discord.</p>}
   </section>
 
   <div class="tiles">
@@ -109,6 +110,8 @@ const count = (g: (typeof list)[number], k: string) => g.maps.find((t) => t.key 
 
 <style>
   .note { display: flex; align-items: flex-start; gap: .5rem; max-width: 62ch; padding: .6rem .85rem; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); font-size: .92rem; }
+  .help { color: var(--muted); max-width: 62ch; }
+  .help a { color: var(--accent-ink); font-weight: 600; }
   .note svg { flex: none; color: var(--accent-ink); margin-top: .1rem; }
   .note strong { font-weight: 600; }
   .rows { display: grid; grid-template-columns: minmax(7rem, max-content) 1fr 2.2rem; align-items: center; gap: .45rem .8rem; }
