@@ -54,6 +54,7 @@ const nav = [
     <footer class="site-foot">
       <div class="wrap">
         <p>Guild details come from the alliance sheet and refresh every few hours.</p>
+        <p><a class="support-link" href="/support/">Support Eden on Ko-fi</a></p>
         <p class="made-by"><Logo size={16} /><span>Part of <a class="eden" href="https://edenafk.com">Eden</a></span></p>
       </div>
     </footer>
@@ -110,6 +111,8 @@ const nav = [
   .site-foot .wrap { padding-block: 1.5rem 2rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 2rem; }
   .made-by { display: inline-flex; align-items: center; gap: .45rem; color: var(--ink); }
   .made-by .eden { font-family: var(--font-display); font-weight: 700; letter-spacing: .04em; color: var(--accent-ink); text-decoration: none; }
+  .support-link { color: var(--accent-ink); font-weight: 600; text-decoration: none; }
+  .support-link:hover { text-decoration: underline; }
 
   .eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .09em; color: var(--accent-ink); font-weight: 600; }
   .page-head { display: flex; flex-direction: column; gap: .5rem; }
