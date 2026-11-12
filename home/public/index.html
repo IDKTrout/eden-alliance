@@ -72,9 +72,14 @@
     .kofi:hover { text-decoration: underline; }
     .kofi:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
     footer { text-align: center; padding: 1.5rem 16px 2rem; color: var(--muted); font-size: .82rem; }
+    .corner { position: absolute; top: 14px; right: max(16px, env(safe-area-inset-right, 0px)); z-index: 5; }
   </style>
+  <script>(function(){var a='gold';try{var m=document.cookie.match(/(?:^|; )eden-accent=([a-z]+)/);a=(m&&m[1])||localStorage.getItem('eden-accent')||a;}catch(e){}document.documentElement.setAttribute('data-accent',a);})();</script>
+  <link rel="stylesheet" href="/theme.css" />
+  <script src="/theme.js" defer></script>
 </head>
 <body>
+  <div class="corner"><div data-theme-pick></div></div>
   <main>
     <section class="hero">
       <h1><img class="logo" src="/eden-logo.webp" width="720" height="720" alt="Eden" fetchpriority="high" /></h1>

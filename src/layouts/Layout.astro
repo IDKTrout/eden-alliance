@@ -38,6 +38,9 @@ const nav = [
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script is:inline>(function(){var a='gold';try{var m=document.cookie.match(/(?:^|; )eden-accent=([a-z]+)/);a=(m&&m[1])||localStorage.getItem('eden-accent')||a;}catch(e){}document.documentElement.setAttribute('data-accent',a);})();</script>
+    <link rel="stylesheet" href="/theme.css" />
+    <script is:inline src="/theme.js" defer></script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -48,6 +51,7 @@ const nav = [
           {nav.map((n) => <a href={n.href} aria-current={n.match(path) ? 'page' : undefined}>{n.label}</a>)}
           <a href="https://event-rankings.edenafk.com">Rankings <span aria-hidden="true">↗</span></a>
         </nav>
+        <div data-theme-pick></div>
       </div>
     </header>
     <main id="main" class="wrap"><slot /></main>
@@ -96,12 +100,13 @@ const nav = [
   .site-head { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
   .head-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .7rem; }
   .brand { display: flex; align-items: center; gap: .5rem; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; letter-spacing: .03em; white-space: nowrap; }
-  .site-head nav { display: flex; align-items: center; gap: .25rem; }
+  .site-head nav { display: flex; align-items: center; gap: .25rem; margin-left: auto; }
   .site-head nav a { text-decoration: none; color: var(--muted); padding: .4rem .65rem; border-radius: 6px; font-weight: 500; white-space: nowrap; }
   .site-head nav a:hover, .site-head nav a[aria-current='page'] { color: var(--ink); background: var(--raised); }
   @media (max-width: 520px) {
     .head-row { flex-wrap: wrap; row-gap: .35rem; }
-    .site-head nav { width: 100%; justify-content: flex-start; gap: .1rem; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .site-head [data-theme-pick] { order: 1; }
+    .site-head nav { order: 2; width: 100%; justify-content: flex-start; gap: .1rem; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .site-head nav::-webkit-scrollbar { display: none; }
     .site-head nav a { padding: .4rem .5rem; font-size: .86rem; flex: none; }
   }
