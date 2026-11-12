@@ -1,45 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Logo from '../components/Logo.astro';
-
-const KOFI = 'https://ko-fi.com/joineden';
+// The Support page moved to edenafk.com/support/. This keeps old links working.
+const to = 'https://edenafk.com/support/';
 ---
-<Layout title="Support Eden" description="Help keep the Eden Alliance website and tools running.">
-  <section class="page-head">
-    <span class="eyebrow">Support</span>
-    <h1>Support Eden</h1>
-    <p class="lede">This site, the event rankings and the alliance sheet are run by volunteers from the guilds. If they've helped you, you can chip in on Ko-fi.</p>
-  </section>
-
-  <section class="card support">
-    <Logo size={56} />
-    <div class="body">
-      <h2>What your support pays for</h2>
-      <ul>
-        <li>The edenafk.com domain and anything else the sites need to stay online.</li>
-        <li>Keeping the guild directory, expedition maps and rankings up to date.</li>
-      </ul>
-      <p class="muted small">Support is a thank-you, never expected, and doesn't buy anything in the game or in the alliance. Eden isn't a registered charity, so it isn't tax-deductible.</p>
-      <a class="kofi" href={KOFI} target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 5h14a4 4 0 0 1 0 8h-1v1a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V5Zm13 2v4h1a2 2 0 0 0 0-4h-1Zm-6.5 1.2c-.9-.9-2.6-.4-2.6 1 0 1.3 1.4 2.4 2.6 3.4 1.2-1 2.6-2.1 2.6-3.4 0-1.4-1.7-1.9-2.6-1Z"/></svg>
-        <span>Support Eden on Ko-fi</span>
-      </a>
-      <p class="muted small">On Ko-fi you can keep your name and message private. Only public messages show on the Ko-fi page.</p>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>Other ways to help</h2>
-    <p>Expedition data is entered by hand by a member of each guild. If you'd like to help, contact <a class="inline" href="https://discord.com/users/224930060694585345" target="_blank" rel="noopener">IDKTrout</a> on Discord, or come say hi at <a class="inline" href="https://discord.gg/joineden" target="_blank" rel="noopener">discord.gg/joineden</a>.</p>
-  </section>
-</Layout>
-
-<style>
-  .support { flex-direction: row; align-items: flex-start; gap: 1.25rem; }
-  .support .body { display: flex; flex-direction: column; gap: .75rem; min-width: 0; }
-  .support ul { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: .3rem; }
-  .kofi { align-self: flex-start; display: inline-flex; align-items: center; gap: .55rem; padding: .7rem 1.2rem; border-radius: 10px; background: #ff5e5b; color: #fff; font-weight: 600; text-decoration: none; }
-  .kofi:hover { background: #e54a47; color: #fff; }
-  .inline { color: var(--accent-ink); font-weight: 600; }
-  @media (max-width: 560px) { .support { flex-direction: column; } .kofi { align-self: stretch; justify-content: center; } }
-</style>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Support Eden</title>
+    <meta http-equiv="refresh" content={`0; url=${to}`} />
+    <link rel="canonical" href={to} />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body><p>The Support page has moved to <a href={to}>edenafk.com/support</a>.</p></body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Support Eden</title>
+  <meta name="description" content="Help keep the Eden Alliance website and event rankings running." />
+  <link rel="canonical" href="https://edenafk.com/support/" />
+  <meta property="og:title" content="Support Eden" />
+  <meta property="og:description" content="Help keep the Eden Alliance website and event rankings running." />
+  <meta property="og:url" content="https://edenafk.com/support/" />
+  <meta property="og:image" content="https://edenafk.com/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="The Eden logo: a gold and silver dragon around a sky castle above the word Eden" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0d1220" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f2f4f8; --surface: #ffffff; --ink: #151b2c; --muted: #5b6579; --line: #dce1ea;
+      --accent: #b4801a; --accent-ink: #855a06; --glow: rgba(61, 139, 255, .12);
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0d1220; --surface: #151c2f; --ink: #e7ebf4; --muted: #9aa4ba; --line: #27314a;
+        --accent: #e0b04a; --accent-ink: #f0c869; --glow: rgba(61, 139, 255, .18);
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0d1220; --surface: #151c2f; --ink: #e7ebf4; --muted: #9aa4ba; --line: #27314a;
+      --accent: #e0b04a; --accent-ink: #f0c869; --glow: rgba(61, 139, 255, .18);
+      color-scheme: dark;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      background: radial-gradient(60rem 30rem at 50% -10%, var(--glow), transparent 70%), var(--bg);
+      color: var(--ink); font: 16px/1.55 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+    a { color: inherit; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+    main { flex: 1; width: 100%; max-width: 680px; margin: 0 auto; padding: clamp(1.5rem, 5vh, 3rem) 16px 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .back { align-self: flex-start; display: inline-flex; align-items: center; gap: .5rem; color: var(--muted); text-decoration: none; font-size: .9rem; }
+    .back:hover { color: var(--ink); }
+    .back img { width: 28px; height: 28px; }
+    .hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: .75rem; }
+    .hero img { width: min(160px, 40vw); height: auto; filter: drop-shadow(0 8px 30px rgba(61, 139, 255, .25)); }
+    .kicker { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent-ink); font-weight: 600; }
+    h1 { margin: 0; font-family: 'Cinzel', Georgia, serif; font-size: clamp(1.8rem, 5vw, 2.4rem); line-height: 1.15; }
+    .lede { margin: 0; max-width: 48ch; color: var(--muted); font-size: 1.05rem; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.3rem 1.4rem; display: flex; flex-direction: column; gap: .8rem; }
+    h2 { margin: 0; font-size: 1.1rem; }
+    ul { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: .3rem; }
+    p { margin: 0; }
+    .small { font-size: .88rem; color: var(--muted); }
+    .kofi {
+      align-self: center; display: inline-flex; align-items: center; gap: .6rem; padding: .75rem 1.4rem;
+      background: #ff5e5b; color: #fff; border-radius: 10px; text-decoration: none; font-weight: 600;
+      box-shadow: 0 6px 20px rgba(255, 94, 91, .3); transition: background .15s;
+    }
+    .kofi:hover { background: #e54a47; }
+    .inline { color: var(--accent-ink); font-weight: 600; }
+    footer { text-align: center; padding: 1.5rem 16px 2rem; color: var(--muted); font-size: .82rem; }
+    @media (max-width: 480px) { .kofi { align-self: stretch; justify-content: center; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="/"><img src="/favicon.svg" alt="" width="28" height="28" /><span>edenafk.com</span></a>
+
+    <section class="hero">
+      <img src="/eden-logo.webp" width="720" height="720" alt="Eden" />
+      <span class="kicker">Support</span>
+      <h1>Support Eden</h1>
+      <p class="lede">The alliance website, the event rankings and the alliance sheet are run by volunteers from the guilds. If they've helped you, you can chip in on Ko-fi.</p>
+      <a class="kofi" href="https://ko-fi.com/joineden" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 5h14a4 4 0 0 1 0 8h-1v1a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V5Zm13 2v4h1a2 2 0 0 0 0-4h-1Zm-6.5 1.2c-.9-.9-2.6-.4-2.6 1 0 1.3 1.4 2.4 2.6 3.4 1.2-1 2.6-2.1 2.6-3.4 0-1.4-1.7-1.9-2.6-1Z"/></svg>
+        <span>Support Eden on Ko-fi</span>
+      </a>
+    </section>
+
+    <section class="card">
+      <h2>What your support pays for</h2>
+      <ul>
+        <li>The edenafk.com domain and anything else the sites need to stay online.</li>
+        <li>Keeping the guild directory, expedition maps and event rankings up to date.</li>
+      </ul>
+      <p class="small">Support is a thank-you, never expected, and doesn't buy anything in the game or in the alliance. Eden isn't a registered charity, so it isn't tax-deductible. On Ko-fi you can keep your name and message private.</p>
+    </section>
+
+    <section class="card">
+      <h2>Other ways to help</h2>
+      <p>Expedition data is entered by hand by a member of each guild. If you'd like to help, contact <a class="inline" href="https://discord.com/users/224930060694585345" target="_blank" rel="noopener">IDKTrout</a> on Discord, or come say hi at <a class="inline" href="https://discord.gg/joineden" rel="noopener">discord.gg/joineden</a>.</p>
+    </section>
+  </main>
+  <footer><a href="/">edenafk.com</a> · <a href="https://discord.gg/joineden" rel="noopener">discord.gg/joineden</a></footer>
+</body>
+</html>
