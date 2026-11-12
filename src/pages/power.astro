@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Emblem from '../components/Emblem.astro';
-import { players, activeGuilds, totalPower, fmtPower, fmtInt } from '../lib/data';
+import { players, activeGuilds, totalPower, fmtPower, fmtInt, guildPower } from '../lib/data';
 
 const top = players[0];
 const guildsWithPlayers = activeGuilds.filter((g) => players.some((p) => p.guildRecord?.id === g.id));
@@ -10,7 +10,11 @@ const guildsWithPlayers = activeGuilds.filter((g) => players.some((p) => p.guild
   <section class="page-head">
     <span class="eyebrow">Rankings</span>
     <h1>Power</h1>
-    <p class="lede">Every player in the alliance, ranked by power across all guilds.</p>
+    <p class="lede">Every guild and player in the alliance, ranked by power.</p>
+    <nav class="chips" aria-label="Rankings">
+      <a class="chip" href="/power/" aria-current="page">Power</a>
+      <a class="chip" href="/campaign/">Campaign</a>
+    </nav>
   </section>
 
   <div class="tiles">
@@ -20,6 +24,27 @@ const guildsWithPlayers = activeGuilds.filter((g) => players.some((p) => p.guild
   </div>
 
   <section class="card">
+    <h2>Guilds</h2>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th class="num">#</th><th>Guild</th><th class="num">Total power</th><th class="num hide-sm">Players</th><th class="num hide-sm">Average</th><th class="hide-sm">Strongest</th></tr></thead>
+      <tbody>
+        {guildPower.map((x) => (
+          <tr>
+            <td class="num muted">{x.rank}</td>
+            <td><span class="gcell"><Emblem guild={x.guild} size={24} /><a href={`/guild/${x.guild.id}/`}>{x.guild.name}</a></span></td>
+            <td class="num"><strong>{fmtPower(x.total)}</strong>
+              <span class="gbar" aria-hidden="true"><span style={`width:${(x.total / guildPower[0].total) * 100}%;background:${x.guild.color}`}></span></span></td>
+            <td class="num hide-sm">{x.players}</td>
+            <td class="num hide-sm">{fmtPower(x.average)}</td>
+            <td class="hide-sm">{x.strongest && (x.strongest.id ? <a class="plink" href={`/player/${x.strongest.id}/`}>{x.strongest.name}</a> : x.strongest.name)} <span class="muted">{x.strongest && fmtPower(x.strongest.power)}</span></td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Players</h2>
     <div class="controls">
       <label class="sr" for="q">Find a player</label>
       <input id="q" class="filter" type="search" placeholder="Player name or ID" autocomplete="off" />
@@ -59,6 +84,10 @@ const guildsWithPlayers = activeGuilds.filter((g) => players.some((p) => p.guild
   .pl a, .gcell a { text-decoration: none; }
   .pl a { font-weight: 500; }
   .pl a:hover, .gcell a:hover { text-decoration: underline; }
+  .gbar { display: block; height: 4px; margin-top: .25rem; margin-left: auto; width: 100%; min-width: 5rem; border-radius: 2px; background: var(--raised); overflow: hidden; }
+  .gbar span { display: block; height: 100%; border-radius: 2px; margin-left: auto; }
+  .plink { text-decoration: none; }
+  .plink:hover { text-decoration: underline; }
   .gcell { display: inline-flex; align-items: center; gap: .4rem; }
   .role { margin-left: .4rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-ink); }
   @media (max-width: 560px) { .hide-sm { display: none; } td.pl { white-space: normal; overflow-wrap: anywhere; } }

@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Emblem from '../components/Emblem.astro';
-import { activeGuilds, inactiveGuilds, guildsIn, categories, categoryHeading, regions, activeRegions, totalPlayers, currentExpedition, fmtInt, fmtDate, updated } from '../lib/data';
+import { activeGuilds, inactiveGuilds, guildsIn, categories, categoryHeading, regions, activeRegions, totalPlayers, currentExpedition, fmtInt, fmtDate, updated, guildPowerOf, fmtPower } from '../lib/data';
 
 const sections = [
   ...categories.map((cat) => ({ heading: categoryHeading(cat), list: guildsIn(cat), inactive: false })),
@@ -53,7 +53,7 @@ const sections = [
                   {sec.inactive
                     ? <span class="g-meta">Was a {g.category.toLowerCase()}</span>
                     : <span class="g-meta">Leader <b>{g.leader || '—'}</b></span>}
-                  {!sec.inactive && <span class="g-foot">{g.players > 0 ? `${g.players} members` : 'Members not listed yet'}</span>}
+                  {!sec.inactive && <span class="g-foot">{g.players > 0 ? `${g.players} members` : 'Members not listed yet'}{guildPowerOf(g) && <> · <b class="pw">{fmtPower(guildPowerOf(g)!.total)}</b> power</>}</span>}
                 </span>
               </a>
             </li>
@@ -92,6 +92,7 @@ const sections = [
   .inactive .g a { border-top-color: var(--line); }
   .inactive .g :global(.emblem) { filter: grayscale(.85); opacity: .75; }
   .inactive .g a:hover :global(.emblem) { filter: none; opacity: 1; }
+  .pw { color: var(--ink); font-weight: 600; }
   .tag { font-size: .7rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 .45rem; color: var(--muted); }
 </style>
 

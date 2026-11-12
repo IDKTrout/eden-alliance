@@ -430,6 +430,10 @@ export interface Player {
   rank: number;
   /** Place by power within the guild. */
   guildRank: number;
+  /** Campaign stage like "47-28" (chapter 47, stage 28), or null if not known. */
+  campaign: { chapter: number; stage: number; text: string } | null;
+  /** Place by campaign stage across all Eden guilds (ties share a place), or null. */
+  campaignRank: number | null;
 }
 
 /** "66M" -> 66e6, "6483K" -> 6.483e6, "1.2B" -> 1.2e9. */
@@ -439,6 +443,12 @@ const powerValue = (v: string): number | null => {
   const n = Number(m[1].replace(/,/g, ''));
   const mult = { K: 1e3, M: 1e6, B: 1e9 }[m[2].toUpperCase() as 'K' | 'M' | 'B'] ?? 1;
   return Number.isFinite(n) ? n * mult : null;
+};
+
+/** "47-28" -> chapter 47, stage 28. */
+const campaignValue = (v: string | undefined): Player['campaign'] => {
+  const m = /^\s*(\d+)\s*-\s*(\d+)\s*$/.exec(v ?? '');
+  return m ? { chapter: Number(m[1]), stage: Number(m[2]), text: `${Number(m[1])}-${Number(m[2])}` } : null;
 };
 
 const playerRows = parseCsv(playersCsv).filter((r) => r.name && r.guild);
@@ -457,12 +467,23 @@ const ranked = playerRows
       power: powerValue(r.power), arena: num(r.arena),
       server: r.server.replace(/^s/i, ''), language: r.language,
       rank: 0, guildRank: 0,
+      campaign: campaignValue(r.campaign), campaignRank: null,
     } satisfies Player;
   })
   .sort((a, b) => (b.power ?? -1) - (a.power ?? -1) || a.name.localeCompare(b.name));
 ranked.forEach((p, i) => { p.rank = i + 1; });
 const perGuild = new Map<string, number>();
 for (const p of ranked) { const n = (perGuild.get(p.guild) ?? 0) + 1; perGuild.set(p.guild, n); p.guildRank = n; }
+
+const campaignScore = (p: Player) => (p.campaign ? p.campaign.chapter * 1000 + p.campaign.stage : -1);
+/** Players with a campaign stage, furthest first; equal stages share a place. */
+export const playersByCampaign: Player[] = ranked
+  .filter((p) => p.campaign)
+  .sort((a, b) => campaignScore(b) - campaignScore(a) || (b.power ?? 0) - (a.power ?? 0) || a.name.localeCompare(b.name));
+playersByCampaign.forEach((p, i) => {
+  const prev = playersByCampaign[i - 1];
+  p.campaignRank = prev && campaignScore(prev) === campaignScore(p) ? prev.campaignRank : i + 1;
+});
 
 /** Every player in Eden, strongest first. */
 export const players: Player[] = ranked;
@@ -488,3 +509,24 @@ export function playerForRift(r: RiftRow): Player | undefined {
   const norm = (s: string) => s.replace(/\s*\((L|D)\)\s*$/i, '').trim().toLowerCase();
   return players.find((p) => p.id && p.guildRecord && p.guildRecord.id === r.guildRecord?.id && norm(p.name) === norm(r.player));
 }
+
+export interface GuildPower {
+  guild: Guild;
+  players: number;
+  total: number;
+  average: number;
+  strongest?: Player;
+  rank: number;
+}
+
+/** Active guilds by total power, strongest first. */
+export const guildPower: GuildPower[] = activeGuilds
+  .map((g) => {
+    const ms = players.filter((p) => p.guildRecord?.id === g.id);
+    const total = ms.reduce((s, p) => s + (p.power ?? 0), 0);
+    return { guild: g, players: ms.length, total, average: ms.length ? total / ms.length : 0, strongest: ms[0], rank: 0 };
+  })
+  .filter((x) => x.players > 0)
+  .sort((a, b) => b.total - a.total);
+guildPower.forEach((x, i) => { x.rank = i + 1; });
+export const guildPowerOf = (g: Guild) => guildPower.find((x) => x.guild.id === g.id);

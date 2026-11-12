@@ -1,0 +1,89 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Emblem from '../components/Emblem.astro';
+import { players, playersByCampaign, activeGuilds, fmtPower, fmtInt } from '../lib/data';
+
+const top = playersByCampaign[0];
+const guildsWithPlayers = activeGuilds.filter((g) => playersByCampaign.some((p) => p.guildRecord?.id === g.id));
+const missing = players.length - playersByCampaign.length;
+---
+<Layout title="Campaign rankings" description="Every Eden Alliance player ranked by campaign stage, across all guilds.">
+  <section class="page-head">
+    <span class="eyebrow">Rankings</span>
+    <h1>Campaign</h1>
+    <p class="lede">Every player in the alliance, ranked by how far they are in the campaign.</p>
+    <nav class="chips" aria-label="Rankings">
+      <a class="chip" href="/power/">Power</a>
+      <a class="chip" href="/campaign/" aria-current="page">Campaign</a>
+    </nav>
+  </section>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Players</span><span class="v">{fmtInt(playersByCampaign.length)}</span></div>
+    {top?.campaign && <div class="tile"><span class="k">Furthest</span><span class="v">{top.campaign.text}</span><span class="muted small">{top.name} · {top.guild}</span></div>}
+  </div>
+
+  <section class="card">
+    <div class="controls">
+      <label class="sr" for="q">Find a player</label>
+      <input id="q" class="filter" type="search" placeholder="Player name or ID" autocomplete="off" />
+      <label class="sr" for="g">Guild</label>
+      <select id="g" class="filter sel">
+        <option value="">All guilds</option>
+        {guildsWithPlayers.map((g) => <option value={g.id}>{g.name}</option>)}
+      </select>
+    </div>
+    <div class="table-wrap"><table class="data" id="t">
+      <thead><tr><th class="num">#</th><th>Player</th><th>Guild</th><th class="num">Stage</th><th class="num hide-sm">Power</th></tr></thead>
+      <tbody>
+        {playersByCampaign.map((p) => (
+          <tr data-g={p.guildRecord?.id ?? ''} data-text={`${p.name} ${p.id}`.toLowerCase()}>
+            <td class="num muted">{p.campaignRank}</td>
+            <td class="pl">
+              {p.id ? <a href={`/player/${p.id}/`}>{p.name}</a> : <span>{p.name}</span>}
+              {p.role && <span class="role">{p.role}</span>}
+            </td>
+            <td><span class="gcell"><Emblem guild={p.guildRecord} size={20} />{p.guildRecord ? <a href={`/guild/${p.guildRecord.id}/`}>{p.guild}</a> : p.guild}</span></td>
+            <td class="num"><strong>{p.campaign?.text}</strong></td>
+            <td class="num hide-sm muted">{fmtPower(p.power)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="muted" id="none" hidden>No player matches that.</p>
+    <p class="muted small">Stage is chapter-stage (47-28 is chapter 47, stage 28). Players on the same stage share a place.{missing > 0 && ` ${missing} player${missing === 1 ? ' has' : 's have'} no campaign stage on the sheet yet.`}</p>
+  </section>
+</Layout>
+
+<style>
+  .controls { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .filter { flex: 1 1 220px; max-width: 360px; padding: .55rem .8rem; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+  .sel { flex: 0 1 200px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .pl a, .gcell a { text-decoration: none; }
+  .pl a { font-weight: 500; }
+  .pl a:hover, .gcell a:hover { text-decoration: underline; }
+  .gcell { display: inline-flex; align-items: center; gap: .4rem; }
+  .role { margin-left: .4rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-ink); }
+  @media (max-width: 560px) { .hide-sm { display: none; } td.pl { white-space: normal; overflow-wrap: anywhere; } }
+</style>
+
+<script>
+  const q = document.getElementById('q') as HTMLInputElement;
+  const g = document.getElementById('g') as HTMLSelectElement;
+  const rows = [...document.querySelectorAll<HTMLTableRowElement>('#t tbody tr')];
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let shown = 0;
+    for (const r of rows) {
+      const ok = (!g.value || r.dataset.g === g.value) && (!term || (r.dataset.text ?? '').includes(term));
+      r.hidden = !ok;
+      if (ok) shown++;
+    }
+    document.getElementById('none')!.hidden = shown > 0;
+  }
+  q.addEventListener('input', apply);
+  g.addEventListener('change', apply);
+  const pre = new URLSearchParams(location.search).get('guild');
+  if (pre && [...g.options].some((o) => o.value === pre)) { g.value = pre; apply(); }
+</script>

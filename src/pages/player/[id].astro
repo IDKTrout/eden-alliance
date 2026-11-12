@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Emblem from '../../components/Emblem.astro';
-import { players, playersIn, riftForPlayer, fmtPower, seasonSlug, seasonName, fmtInt, type Player } from '../../lib/data';
+import { players, playersIn, playersByCampaign, riftForPlayer, fmtPower, seasonSlug, seasonName, fmtInt, type Player } from '../../lib/data';
 
 export function getStaticPaths() {
   return players.filter((p) => p.id).map((p) => ({ params: { id: p.id }, props: { p } }));
@@ -30,6 +30,7 @@ const riftRows = riftForPlayer(p);
     <div class="tile"><span class="k">Power</span><span class="v">{fmtPower(p.power)}</span></div>
     <a class="tile" href="/power/"><span class="k">Alliance rank</span><span class="v">#{p.rank}</span><span class="muted small">of {fmtInt(players.length)} players</span></a>
     {g && <a class="tile" href={`/power/?guild=${g.id}`}><span class="k">Guild rank</span><span class="v">#{p.guildRank}</span><span class="muted small">of {guildSize} in {g.name}</span></a>}
+    {p.campaign && <a class="tile" href="/campaign/"><span class="k">Campaign</span><span class="v">{p.campaign.text}</span><span class="muted small">#{p.campaignRank} of {fmtInt(playersByCampaign.length)}</span></a>}
     {p.arena != null && <div class="tile"><span class="k">Arena</span><span class="v">#{p.arena}</span><span class="muted small">region top 30</span></div>}
   </div>
 

@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
 import Emblem from '../../components/Emblem.astro';
-import { guilds, guildHistory, leagueGroups, splitLeague, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, abex, abexSeasons, rift, riftSeasons, seasonSlug, seasonName, fmtDamage, fmtInt, playersIn, fmtPower, type Guild } from '../../lib/data';
+import { guilds, guildHistory, leagueGroups, splitLeague, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, abex, abexSeasons, rift, riftSeasons, seasonSlug, seasonName, fmtDamage, fmtInt, playersIn, fmtPower, guildPowerOf, guildPower, type Guild } from '../../lib/data';
 
 export function getStaticPaths() {
   return guilds.map((g) => ({ params: { id: g.id }, props: { g } }));
@@ -21,7 +21,7 @@ const myLeagues = current
     }).sort((a, b) => b.count - a.count)
   : [];
 const members = playersIn(g);
-const guildPower = members.reduce((s, p) => s + (p.power ?? 0), 0);
+const gp = guildPowerOf(g);
 const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.id !== g.id);
 ---
 <Layout title={g.name} description={`${g.name}: ${g.active ? '' : 'former '}${g.category} of the Eden Alliance in Region ${g.region}.${g.gameId ? ` Guild ID ${g.gameId}.` : ''}`}>
@@ -42,6 +42,7 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
       {g.gameId && <button class="copy" type="button" data-copy={g.gameId}>Copy ID</button>}
     </div>
     <div class="tile"><span class="k">Members</span><span class="v">{g.players || '—'}</span></div>
+    {gp && <a class="tile" href="/power/"><span class="k">Total power</span><span class="v">{fmtPower(gp.total)}</span><span class="muted small">#{gp.rank} of {guildPower.length} guilds</span></a>}
     <div class="tile"><span class="k">Region</span><span class="v">{g.region ?? '—'}</span></div>
     <div class="tile"><span class="k">Status</span><span class="v status">{g.status}</span></div>
   </div>
@@ -58,7 +59,7 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
     <section class="card">
       <div class="mhead">
         <h2>Members</h2>
-        <span class="muted small">{members.length} players · {fmtPower(guildPower)} total power · <a href={`/power/?guild=${g.id}`}>In the power rankings →</a></span>
+        <span class="muted small">{members.length} players · {fmtPower(gp?.total ?? 0)} total power · <a href={`/power/?guild=${g.id}`}>In the power rankings →</a></span>
       </div>
       <ol class="members">
         {members.map((p) => (
