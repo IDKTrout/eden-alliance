@@ -33,11 +33,12 @@ const missing = players.length - playersByCampaign.length;
         {guildsWithPlayers.map((g) => <option value={g.id}>{g.name}</option>)}
       </select>
     </div>
+    <div class="pager-row"><span class="muted small" id="count"></span><nav class="pager" data-pager aria-label="Pages"></nav></div>
     <div class="table-wrap"><table class="data" id="t">
       <thead><tr><th class="num">#</th><th>Player</th><th>Guild</th><th class="num">Stage</th><th class="num hide-sm">Power</th></tr></thead>
       <tbody>
-        {playersByCampaign.map((p) => (
-          <tr data-g={p.guildRecord?.id ?? ''} data-text={`${p.name} ${p.id}`.toLowerCase()}>
+        {playersByCampaign.map((p, i) => (
+          <tr hidden={i >= 100} data-g={p.guildRecord?.id ?? ''} data-text={`${p.name} ${p.id}`.toLowerCase()}>
             <td class="num muted">{p.campaignRank}</td>
             <td class="pl">
               {p.id ? <a href={`/player/${p.id}/`}>{p.name}</a> : <span>{p.name}</span>}
@@ -50,6 +51,7 @@ const missing = players.length - playersByCampaign.length;
         ))}
       </tbody>
     </table></div>
+    <div class="pager-row end"><nav class="pager" data-pager aria-label="Pages"></nav></div>
     <p class="muted" id="none" hidden>No player matches that.</p>
     <p class="muted small">Stage is chapter-stage (47-28 is chapter 47, stage 28). Players on the same stage share a place.{missing > 0 && ` ${missing} player${missing === 1 ? ' has' : 's have'} no campaign stage on the sheet yet.`}</p>
   </section>
@@ -69,21 +71,6 @@ const missing = players.length - playersByCampaign.length;
 </style>
 
 <script>
-  const q = document.getElementById('q') as HTMLInputElement;
-  const g = document.getElementById('g') as HTMLSelectElement;
-  const rows = [...document.querySelectorAll<HTMLTableRowElement>('#t tbody tr')];
-  function apply() {
-    const term = q.value.trim().toLowerCase();
-    let shown = 0;
-    for (const r of rows) {
-      const ok = (!g.value || r.dataset.g === g.value) && (!term || (r.dataset.text ?? '').includes(term));
-      r.hidden = !ok;
-      if (ok) shown++;
-    }
-    document.getElementById('none')!.hidden = shown > 0;
-  }
-  q.addEventListener('input', apply);
-  g.addEventListener('change', apply);
-  const pre = new URLSearchParams(location.search).get('guild');
-  if (pre && [...g.options].some((o) => o.value === pre)) { g.value = pre; apply(); }
+  import { setupRanking } from '../scripts/ranking';
+  setupRanking();
 </script>

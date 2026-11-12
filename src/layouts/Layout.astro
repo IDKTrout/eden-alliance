@@ -138,6 +138,15 @@ const nav = [
   table.data .num { text-align: right; }
   table.data tbody tr:hover { background: var(--raised); }
   .pill { display: inline-grid; place-items: center; min-width: 1.9rem; padding: .05rem .4rem; border-radius: 5px; font-size: .78rem; font-weight: 600; }
+  .pager-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+  .pager-row.end { justify-content: flex-end; }
+  .pager { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; }
+  .pg { font: inherit; font-size: .84rem; min-width: 2.1rem; padding: .3rem .55rem; border-radius: 6px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; font-variant-numeric: tabular-nums; }
+  .pg:hover:not(:disabled) { border-color: var(--accent); }
+  .pg[aria-current='page'] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .pg:disabled { opacity: .4; cursor: default; }
+  .pg-gap { padding: 0 .2rem; color: var(--muted); }
+  #t { scroll-margin-top: 5rem; }
   details.table-view > summary { cursor: pointer; color: var(--muted); font-size: .85rem; }
   details.table-view[open] > summary { margin-bottom: .5rem; }
 </style>
