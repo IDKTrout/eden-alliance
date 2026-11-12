@@ -1,5 +1,6 @@
 ---
 import Logo from '../components/Logo.astro';
+import DiscordPopup from '../components/DiscordPopup.astro';
 import { currentExpedition, abexSeasons, riftSeasons, seasonSlug } from '../lib/data';
 interface Props { title?: string; description?: string }
 const { title, description = 'The Eden Guild Alliance: every guild, its region, leaders and expedition maps.' } = Astro.props;
@@ -56,6 +57,7 @@ const nav = [
         <p class="made-by"><Logo size={16} /><span>Part of <a class="eden" href="https://edenafk.com">Eden</a></span></p>
       </div>
     </footer>
+    <DiscordPopup />
   </body>
 </html>
 

@@ -1,0 +1,56 @@
+---
+// After 5 minutes on the site (counted across pages in one visit), invite the visitor to the
+// Eden Discord. Once shown, it stays away for a week on that browser.
+import Logo from './Logo.astro';
+---
+<dialog id="discord-pop" class="dpop" aria-labelledby="dpop-title">
+  <form method="dialog" class="dpop-x-form"><button class="dpop-x" value="close" aria-label="Close">×</button></form>
+  <Logo size={44} />
+  <h2 id="dpop-title">Join us on Discord</h2>
+  <p>Talk with the alliance, find a guild, and keep up with expeditions, AbEx and Rift.</p>
+  <div class="dpop-actions">
+    <a class="dpop-join" href="https://discord.gg/joineden" target="_blank" rel="noopener">Join the Eden Discord</a>
+    <form method="dialog"><button class="dpop-later" value="later">Maybe later</button></form>
+  </div>
+</dialog>
+
+<script>
+  const AFTER = 5 * 60 * 1000;
+  const AGAIN = 7 * 24 * 60 * 60 * 1000;
+  const START = 'eden-visit-start';
+  const SHOWN = 'eden-discord-shown';
+  const get = (s: Storage, k: string) => { try { return s.getItem(k); } catch { return null; } };
+  const set = (s: Storage, k: string, v: string) => { try { s.setItem(k, v); } catch { /* storage blocked */ } };
+
+  const dialog = document.getElementById('discord-pop') as HTMLDialogElement | null;
+  const now = Date.now();
+  const lastShown = Number(get(localStorage, SHOWN)) || 0;
+  if (dialog && typeof dialog.showModal === 'function' && now - lastShown >= AGAIN) {
+    let start = Number(get(sessionStorage, START)) || 0;
+    if (!start) { start = now; set(sessionStorage, START, String(now)); }
+    setTimeout(() => {
+      if (now - (Number(get(localStorage, SHOWN)) || 0) < AGAIN) return; // shown in another tab meanwhile
+      set(localStorage, SHOWN, String(Date.now()));
+      dialog.showModal();
+    }, Math.max(0, start + AFTER - now));
+    dialog.querySelector('.dpop-join')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  }
+</script>
+
+<style is:global>
+  .dpop { width: min(420px, calc(100vw - 32px)); padding: 1.75rem 1.5rem 1.5rem; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); text-align: center; box-shadow: 0 20px 50px rgb(0 0 0 / .35); }
+  .dpop[open] { display: flex; flex-direction: column; align-items: center; gap: .75rem; }
+  .dpop::backdrop { background: rgb(8 12 22 / .6); }
+  .dpop h2 { font-family: var(--font-display); font-size: 1.4rem; }
+  .dpop p { color: var(--muted); }
+  .dpop-x-form { position: absolute; top: .4rem; right: .4rem; }
+  .dpop-x { font: inherit; font-size: 1.4rem; line-height: 1; width: 2.2rem; height: 2.2rem; border: 0; border-radius: 8px; background: none; color: var(--muted); cursor: pointer; }
+  .dpop-x:hover { background: var(--raised); color: var(--ink); }
+  .dpop-actions { display: flex; flex-direction: column; gap: .4rem; width: 100%; margin-top: .25rem; }
+  .dpop-actions form { display: contents; }
+  .dpop-join { display: block; padding: .7rem 1rem; border-radius: 9px; background: #5865f2; color: #fff; font-weight: 600; text-decoration: none; }
+  .dpop-join:hover { background: #4752c4; color: #fff; }
+  .dpop-later { font: inherit; padding: .55rem 1rem; border: 0; border-radius: 9px; background: none; color: var(--muted); cursor: pointer; }
+  .dpop-later:hover { background: var(--raised); color: var(--ink); }
+</style>
