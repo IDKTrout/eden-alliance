@@ -28,6 +28,7 @@ const count = (g: (typeof list)[number], k: string) => g.maps.find((t) => t.key 
       ? <p class="note" role="note"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3 2 21h20L12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="M12 10v5M12 18v.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg><span><strong>Note:</strong> {ACCURACY_NOTE}</span></p>
       : <p class="muted small">{ACCURACY_NOTE}</p>}
     {id === currentExpedition && <p class="help small">Data is entered by hand by a member of each guild. If you'd like to help, please contact <a href="https://discord.com/users/224930060694585345" target="_blank" rel="noopener">IDKTrout</a> on Discord.</p>}
+    {id !== currentExpedition && <p class="help small">Expedition {id} is over. This is where each guild's players were placed, as entered on the sheet; it won't change.</p>}
   </section>
 
   <div class="tiles">
