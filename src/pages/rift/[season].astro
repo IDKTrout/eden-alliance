@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Emblem from '../../components/Emblem.astro';
-import { riftSeasons, riftFor, seasonSlug, seasonName, fmtInt } from '../../lib/data';
+import { riftSeasons, riftFor, seasonSlug, seasonName, fmtInt, playerForRift } from '../../lib/data';
 
 export function getStaticPaths() {
   return riftSeasons.map((season) => ({ params: { season: seasonSlug(season) }, props: { season } }));
@@ -34,7 +34,7 @@ const guildCount = new Set(rows.map((r) => r.guild)).size;
         {rows.map((r) => (
           <tr>
             <td class="num">{r.place ?? '—'}</td>
-            <td class="player">{r.player}</td>
+            <td class="player">{(() => { const pl = playerForRift(r); return pl ? <a href={`/player/${pl.id}/`}>{r.player}</a> : r.player; })()}</td>
             <td class="num">{r.floor != null ? fmtInt(r.floor) : '—'}</td>
             <td>
               <span class="gcell">
@@ -54,6 +54,8 @@ const guildCount = new Set(rows.map((r) => r.guild)).size;
 
 <style>
   .player { font-weight: 500; }
+  .player a { text-decoration: none; }
+  .player a:hover { text-decoration: underline; }
   .gcell { display: inline-flex; align-items: center; gap: .45rem; }
   .gcell a { text-decoration: none; }
   .gcell a:hover { text-decoration: underline; }

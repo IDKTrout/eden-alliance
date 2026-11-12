@@ -7,6 +7,7 @@ import settingsCsv from '../data/web_settings.csv?raw';
 import abexCsv from '../data/web_abex.csv?raw';
 import riftCsv from '../data/web_rift.csv?raw';
 import formerNamesCsv from '../data/web_former_names.csv?raw';
+import playersCsv from '../data/web_players.csv?raw';
 
 function parseCsv(text: string): Record<string, string>[] {
   const rows: string[][] = [];
@@ -406,4 +407,84 @@ export function fmtDamage(n: number | null): string {
   const units: [number, string][] = [[1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
   for (const [v, u] of units) if (n >= v) return `${(n / v).toLocaleString('en-US', { maximumFractionDigits: 2 })}${u}`;
   return fmtInt(n);
+}
+
+// ---------- Players and power (web_players: every guild block on the Region tabs, plus Player IDs) ----------
+
+export interface Player {
+  /** In-game player ID, or '' when it's missing or shared by two players (then there's no player card). */
+  id: string;
+  /** Name as on the Region tab, without the (L)/(D) role tag. */
+  name: string;
+  role: '' | 'Leader' | 'Deputy';
+  guild: string;
+  guildRecord?: Guild;
+  /** Power in raw units (66M -> 66,000,000). */
+  power: number | null;
+  /** Rank in the region's top 30 arena, or null. */
+  arena: number | null;
+  server: string;
+  /** Shown on the player card only. */
+  language: string;
+  /** Place by power across all Eden guilds (1 = strongest). */
+  rank: number;
+  /** Place by power within the guild. */
+  guildRank: number;
+}
+
+/** "66M" -> 66e6, "6483K" -> 6.483e6, "1.2B" -> 1.2e9. */
+const powerValue = (v: string): number | null => {
+  const m = /^([\d.,]+)\s*([KMB]?)$/i.exec((v ?? '').trim());
+  if (!m) return null;
+  const n = Number(m[1].replace(/,/g, ''));
+  const mult = { K: 1e3, M: 1e6, B: 1e9 }[m[2].toUpperCase() as 'K' | 'M' | 'B'] ?? 1;
+  return Number.isFinite(n) ? n * mult : null;
+};
+
+const playerRows = parseCsv(playersCsv).filter((r) => r.name && r.guild);
+const idCount = new Map<string, number>();
+for (const r of playerRows) if (r.player_id) idCount.set(r.player_id, (idCount.get(r.player_id) ?? 0) + 1);
+
+const ranked = playerRows
+  .map((r) => {
+    const tag = /\s*\((L|D)\)\s*$/i.exec(r.name);
+    const role: Player['role'] = tag ? (tag[1].toUpperCase() === 'L' ? 'Leader' : 'Deputy') : '';
+    const guild = currentName(r.guild);
+    return {
+      id: r.player_id && idCount.get(r.player_id) === 1 ? r.player_id.replace(/\D/g, '') : '',
+      name: tag ? r.name.slice(0, tag.index).trim() : r.name.trim(),
+      role, guild, guildRecord: guildNamed(guild),
+      power: powerValue(r.power), arena: num(r.arena),
+      server: r.server.replace(/^s/i, ''), language: r.language,
+      rank: 0, guildRank: 0,
+    } satisfies Player;
+  })
+  .sort((a, b) => (b.power ?? -1) - (a.power ?? -1) || a.name.localeCompare(b.name));
+ranked.forEach((p, i) => { p.rank = i + 1; });
+const perGuild = new Map<string, number>();
+for (const p of ranked) { const n = (perGuild.get(p.guild) ?? 0) + 1; perGuild.set(p.guild, n); p.guildRank = n; }
+
+/** Every player in Eden, strongest first. */
+export const players: Player[] = ranked;
+export const playersIn = (g: Guild) => players.filter((p) => p.guildRecord?.id === g.id);
+export const totalPower = players.reduce((s, p) => s + (p.power ?? 0), 0);
+
+/** 291e6 -> "291M", 6.483e6 -> "6.5M", 1.25e9 -> "1.25B". */
+export function fmtPower(n: number | null): string {
+  if (n == null) return '—';
+  if (n >= 1e12) return `${(n / 1e12).toLocaleString('en-US', { maximumFractionDigits: 2 })}T`;
+  if (n >= 1e9) return `${(n / 1e9).toLocaleString('en-US', { maximumFractionDigits: 2 })}B`;
+  return `${(n / 1e6).toLocaleString('en-US', { maximumFractionDigits: n < 1e8 ? 1 : 0 })}M`;
+}
+
+/** Temporal Rift results that belong to a player: same guild, same name (role tags ignored). */
+export function riftForPlayer(p: Player) {
+  const norm = (s: string) => s.replace(/\s*\((L|D)\)\s*$/i, '').trim().toLowerCase();
+  return rift.filter((r) => r.guildRecord && r.guildRecord.id === p.guildRecord?.id && norm(r.player) === norm(p.name));
+}
+
+/** The player card for a Rift row, when the name and guild match a player with an ID. */
+export function playerForRift(r: RiftRow): Player | undefined {
+  const norm = (s: string) => s.replace(/\s*\((L|D)\)\s*$/i, '').trim().toLowerCase();
+  return players.find((p) => p.id && p.guildRecord && p.guildRecord.id === r.guildRecord?.id && norm(p.name) === norm(r.player));
 }

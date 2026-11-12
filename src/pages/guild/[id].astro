@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import StackBar from '../../components/StackBar.astro';
 import Emblem from '../../components/Emblem.astro';
-import { guilds, guildHistory, leagueGroups, splitLeague, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, abex, abexSeasons, rift, riftSeasons, seasonSlug, seasonName, fmtDamage, fmtInt, type Guild } from '../../lib/data';
+import { guilds, guildHistory, leagueGroups, splitLeague, mapColor, mapLabel, leagueColor, inkOn, currentExpedition, pct, ACCURACY_NOTE, abex, abexSeasons, rift, riftSeasons, seasonSlug, seasonName, fmtDamage, fmtInt, playersIn, fmtPower, type Guild } from '../../lib/data';
 
 export function getStaticPaths() {
   return guilds.map((g) => ({ params: { id: g.id }, props: { g } }));
@@ -20,6 +20,8 @@ const myLeagues = current
       return { map, league, count: t.count, others: (group?.guilds ?? []).filter((x) => x.guildRecord?.id !== g.id) };
     }).sort((a, b) => b.count - a.count)
   : [];
+const members = playersIn(g);
+const guildPower = members.reduce((s, p) => s + (p.power ?? 0), 0);
 const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.id !== g.id);
 ---
 <Layout title={g.name} description={`${g.name}: ${g.active ? '' : 'former '}${g.category} of the Eden Alliance in Region ${g.region}.${g.gameId ? ` Guild ID ${g.gameId}.` : ''}`}>
@@ -51,6 +53,24 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
       {g.deputies.length > 0 && <div><dt>Deputies</dt><dd>{g.deputies.join(', ')}</dd></div>}
     </dl>
   </section>}
+
+  {members.length > 0 && (
+    <section class="card">
+      <div class="mhead">
+        <h2>Members</h2>
+        <span class="muted small">{members.length} players · {fmtPower(guildPower)} total power · <a href={`/power/?guild=${g.id}`}>In the power rankings →</a></span>
+      </div>
+      <ol class="members">
+        {members.map((p) => (
+          <li>
+            <span class="mr muted">{p.guildRank}</span>
+            <span class="mn">{p.id ? <a href={`/player/${p.id}/`}>{p.name}</a> : p.name}{p.role && <span class="role">{p.role}</span>}</span>
+            <span class="mp">{fmtPower(p.power)}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
 
   {current && (
     <section class="card">
@@ -149,6 +169,15 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
   .myleagues b { font-weight: 600; }
   .myleagues a { text-decoration: none; }
   .myleagues a:hover { text-decoration: underline; }
+  .mhead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .3rem 1rem; }
+  .members { list-style: none; margin: 0; padding: 0; columns: 3 15rem; column-gap: 1.5rem; }
+  .members li { display: grid; grid-template-columns: 1.8rem 1fr auto; gap: .4rem; align-items: baseline; padding: .28rem 0; border-bottom: 1px solid var(--line); break-inside: avoid; font-size: .9rem; }
+  .mr { font-size: .75rem; text-align: right; font-variant-numeric: tabular-nums; }
+  .mn { min-width: 0; overflow-wrap: anywhere; }
+  .mn a { text-decoration: none; }
+  .mn a:hover { text-decoration: underline; }
+  .mp { font-variant-numeric: tabular-nums; font-weight: 500; }
+  .role { margin-left: .35rem; font-size: .64rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-ink); }
   .fin { color: var(--accent-ink); }
   .back { margin-bottom: -1.25rem; }
   .head { display: flex; align-items: center; gap: 1.25rem; }

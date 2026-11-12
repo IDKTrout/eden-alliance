@@ -1,0 +1,73 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Emblem from '../../components/Emblem.astro';
+import { players, playersIn, riftForPlayer, fmtPower, seasonSlug, seasonName, fmtInt, type Player } from '../../lib/data';
+
+export function getStaticPaths() {
+  return players.filter((p) => p.id).map((p) => ({ params: { id: p.id }, props: { p } }));
+}
+const { p } = Astro.props as { p: Player };
+const g = p.guildRecord;
+const guildSize = g ? playersIn(g).length : 0;
+const riftRows = riftForPlayer(p);
+---
+<Layout title={p.name} description={`${p.name}, ${p.role ? `${p.role.toLowerCase()} of ` : ''}${p.guild} in the Eden Alliance: ${fmtPower(p.power)} power.`}>
+  {g && <a class="muted small back" href={`/guild/${g.id}/`}>← {g.name}</a>}
+  <section class="pcard" style={`--gc:${g?.color ?? 'var(--line)'}`}>
+    <Emblem guild={g} size={96} eager />
+    <div class="page-head">
+      <span class="eyebrow">{p.role ? `${p.role} · ` : ''}{p.guild}{g?.region != null ? ` · Region ${g.region}` : ''}</span>
+      <h1>{p.name}</h1>
+      <dl class="facts">
+        <div><dt>Player ID</dt><dd>{p.id} <button class="copy" type="button" data-copy={p.id}>Copy</button></dd></div>
+        {p.server && <div><dt>Server</dt><dd>S{p.server}</dd></div>}
+        {p.language && <div><dt>Language</dt><dd>{p.language}</dd></div>}
+      </dl>
+    </div>
+  </section>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Power</span><span class="v">{fmtPower(p.power)}</span></div>
+    <a class="tile" href="/power/"><span class="k">Alliance rank</span><span class="v">#{p.rank}</span><span class="muted small">of {fmtInt(players.length)} players</span></a>
+    {g && <a class="tile" href={`/power/?guild=${g.id}`}><span class="k">Guild rank</span><span class="v">#{p.guildRank}</span><span class="muted small">of {guildSize} in {g.name}</span></a>}
+    {p.arena != null && <div class="tile"><span class="k">Arena</span><span class="v">#{p.arena}</span><span class="muted small">region top 30</span></div>}
+  </div>
+
+  {riftRows.length > 0 && (
+    <section class="card">
+      <h2>Temporal Rift</h2>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Season</th><th class="num">Place</th><th class="num">Floor</th></tr></thead>
+        <tbody>
+          {riftRows.map((r) => (
+            <tr>
+              <td><a href={`/rift/${seasonSlug(r.season)}/`}>{seasonName(r.season)}</a></td>
+              <td class="num">{r.place ?? '—'}</td>
+              <td class="num">{r.floor != null ? fmtInt(r.floor) : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table></div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .back { margin-bottom: -1.25rem; }
+  .pcard { display: flex; align-items: center; gap: 1.25rem; padding: 1.1rem 1.25rem; background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--gc); border-radius: var(--radius); }
+  .facts { display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; margin: .35rem 0 0; }
+  .facts dt { font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+  .facts dd { margin: 0; font-weight: 500; display: flex; align-items: center; gap: .45rem; font-variant-numeric: tabular-nums; }
+  .copy { font: inherit; font-size: .72rem; background: var(--raised); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: .05rem .45rem; cursor: pointer; }
+  @media (max-width: 560px) { .pcard { flex-direction: column; align-items: flex-start; } }
+</style>
+
+<script>
+  for (const b of document.querySelectorAll<HTMLButtonElement>('button[data-copy]')) {
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy ?? ''); b.textContent = 'Copied'; }
+      catch { b.textContent = 'Copy failed'; }
+      setTimeout(() => (b.textContent = 'Copy'), 1500);
+    });
+  }
+</script>

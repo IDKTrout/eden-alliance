@@ -10,6 +10,7 @@ const nav = [
   { href: `/expedition/${currentExpedition}/`, label: 'Expedition', match: (p: string) => p.startsWith('/expedition') },
   { href: `/abex/${seasonSlug(abexSeasons[0] ?? '')}/`, label: 'AbEx', match: (p: string) => p.startsWith('/abex') },
   { href: `/rift/${seasonSlug(riftSeasons[0] ?? '')}/`, label: 'Rift', match: (p: string) => p.startsWith('/rift') },
+  { href: '/power/', label: 'Power', match: (p: string) => p.startsWith('/power') || p.startsWith('/player/') },
 ];
 ---
 <!doctype html>
@@ -96,8 +97,9 @@ const nav = [
   .site-head nav a:hover, .site-head nav a[aria-current='page'] { color: var(--ink); background: var(--raised); }
   @media (max-width: 520px) {
     .head-row { flex-wrap: wrap; row-gap: .35rem; }
-    .site-head nav { width: 100%; justify-content: space-between; }
-    .site-head nav a { padding: .4rem .3rem; font-size: .86rem; }
+    .site-head nav { width: 100%; justify-content: flex-start; gap: .1rem; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .site-head nav::-webkit-scrollbar { display: none; }
+    .site-head nav a { padding: .4rem .5rem; font-size: .86rem; flex: none; }
   }
 
   main.wrap { padding-block: 2rem 3rem; display: flex; flex-direction: column; gap: 2rem; }

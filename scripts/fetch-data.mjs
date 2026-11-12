@@ -18,6 +18,7 @@ const TABS = {
   web_abex: 900004,
   web_rift: 900005,
   web_former_names: 900006,
+  web_players: 900007,
 };
 
 async function publishId() {
