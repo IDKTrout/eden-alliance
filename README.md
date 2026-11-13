@@ -19,9 +19,9 @@ Everything comes from the Google Sheet **Eden Guild Alliance 4.1**. The site rea
 | `web_abex` | VoT Log | AbEx (Vault of Time) results for Eden guilds: season, guild, server, region, dim, time, damage, percent, rank. Season 2 is left off the site (before AbEx went global). |
 | `web_rift` | TR Log | Temporal Rift results for Eden players: season, place, player, floor, server, guild |
 | `web_players` | Region tabs + Player IDs | one row per player: guild, name, power, arena, player ID, server, language, campaign (chapter-stage, from Player IDs). Collects every "Eden: <guild>" block on the Region tabs and looks up the ID by guild and name. Language is shown only on player cards. |
+| `web_former_names` | *(typed in directly)* | old guild names and the guild's name now (Vespers → Prodigy). Results logged under an old name are shown under the current guild, marked "listed as". |
 
 `src/data/regions.csv` is kept by hand (not from the sheet): the first and last server of each game region, copied from the Event Rankings regions table. Players are placed in a region by their server for the Regions rankings. Add a row when a new region opens.
-| `web_former_names` | *(typed in directly)* | old guild names and the guild's name now (Vespers → Prodigy). Results logged under an old name are shown under the current guild, marked "listed as". |
 
 Edit the sheet as usual (Discord Bot, Region tabs, Expedition Board); the `web_*` tabs follow on their own. Don't publish any other tab: Discord Bot holds Discord IDs and Other Groups holds the blacklist. `scripts/fetch-data.mjs` also refuses to save a tab whose header mentions Discord.
 
