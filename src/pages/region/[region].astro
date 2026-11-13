@@ -17,7 +17,7 @@ const stageRank = new Map(byStage.map((p, i) => [p, i + 1]));
   <section class="page-head">
     <span class="eyebrow">Rankings · Regions</span>
     <h1>Region {x.region}</h1>
-    <p class="lede">Eden players on servers {x.servers}, ranked by power.</p>
+    <p class="lede">Players in Eden's Region {x.region} guilds (servers {x.servers}), ranked by power.</p>
     <nav class="chips" aria-label="Regions">
       <a class="chip" href="/regions/">All regions</a>
       {[...regionPower].sort((a, b) => a.region - b.region).map((r) => <a class="chip" href={`/region/${r.region}/`} aria-current={r.region === x.region ? 'page' : undefined}>{r.region}</a>)}
@@ -63,7 +63,7 @@ const stageRank = new Map(byStage.map((p, i) => [p, i + 1]));
     </table></div>
     <div class="pager-row end"><nav class="pager" data-pager aria-label="Pages"></nav></div>
     <p class="muted" id="none" hidden>No player matches that.</p>
-    <p class="muted small">Players are placed in a region by their server, whichever guild they're in. Alliance # is their place by power across all of Eden.</p>
+    <p class="muted small">Every player in this region's Eden guilds. Alliance # is their place by power across all of Eden.</p>
   </section>
 </Layout>
 

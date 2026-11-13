@@ -10,7 +10,7 @@ const most = [...regionPower].sort((a, b) => b.players - a.players)[0];
   <section class="page-head">
     <span class="eyebrow">Rankings</span>
     <h1>Regions</h1>
-    <p class="lede">Every region with Eden players, ranked by the total power of the players whose server is in it.</p>
+    <p class="lede">Every region with Eden players, ranked by the total power of its Eden guilds' players.</p>
     <nav class="chips" aria-label="Rankings">
       <a class="chip" href="/power/">Power</a>
       <a class="chip" href="/campaign/">Campaign</a>
@@ -43,7 +43,7 @@ const most = [...regionPower].sort((a, b) => b.players - a.players)[0];
         ))}
       </tbody>
     </table></div>
-    <p class="muted small">A player's region comes from their server. Guilds are shown in a region when any of their players' servers are in it, so a guild can appear in more than one.{playersWithoutRegion.length > 0 && ` ${playersWithoutRegion.length} player${playersWithoutRegion.length === 1 ? ' has' : 's have'} no server on the sheet, so they aren't in any region.`}</p>
+    <p class="muted small">Guilds are locked to one region, so each player counts toward their guild's region.{playersWithoutRegion.length > 0 && ` ${playersWithoutRegion.length} player${playersWithoutRegion.length === 1 ? ' has' : 's have'} no region on the sheet yet.`}</p>
   </section>
 </Layout>
 

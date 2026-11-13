@@ -425,7 +425,7 @@ export interface Player {
   /** Rank in the region's top 30 arena, or null. */
   arena: number | null;
   server: string;
-  /** Game region the server belongs to (from src/data/regions.csv), or null if unknown. */
+  /** Game region: the guild's region (guilds are region-locked), or the server's if the guild has none. */
   region: number | null;
   /** Place by power within the region. */
   regionRank: number;
@@ -483,7 +483,9 @@ const ranked = playerRows
       name: tag ? r.name.slice(0, tag.index).trim() : r.name.trim(),
       role, guild, guildRecord: guildNamed(guild),
       power: powerValue(r.power), arena: num(r.arena),
-      server: r.server.replace(/^s/i, ''), region: regionOfServer(r.server.replace(/^s/i, '')), language: r.language,
+      server: r.server.replace(/^s/i, ''), language: r.language,
+      // Guilds are locked to one region, so a player's region is their guild's; the server is a fallback.
+      region: guildNamed(guild)?.region ?? regionOfServer(r.server.replace(/^s/i, '')),
       rank: 0, guildRank: 0, regionRank: 0,
       campaign: campaignValue(r.campaign), campaignRank: null,
     } satisfies Player;
@@ -572,10 +574,9 @@ export const regionPower: RegionPower[] = [...new Set(players.map((p) => p.regio
   .map((region) => {
     const ms = playersInRegion(region);
     const total = ms.reduce((s, p) => s + (p.power ?? 0), 0);
-    const guildIds = new Set(ms.map((p) => p.guildRecord?.id).filter(Boolean));
     return {
       region, servers: regionServers(region), players: ms.length,
-      guilds: activeGuilds.filter((g) => guildIds.has(g.id)),
+      guilds: activeGuilds.filter((g) => g.region === region).sort((a, b) => Number(a.id) - Number(b.id)),
       total, average: ms.length ? total / ms.length : 0,
       strongest: ms[0], furthest: playersByCampaign.find((p) => p.region === region), rank: 0,
     };
@@ -583,5 +584,5 @@ export const regionPower: RegionPower[] = [...new Set(players.map((p) => p.regio
   .sort((a, b) => b.total - a.total);
 regionPower.forEach((x, i) => { x.rank = i + 1; });
 export const regionPowerOf = (region: number | null) => regionPower.find((x) => x.region === region);
-/** Players whose server isn't in the regions table. */
+/** Players with no region (no guild region and no known server). */
 export const playersWithoutRegion = players.filter((p) => p.region == null);
