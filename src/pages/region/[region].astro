@@ -1,0 +1,87 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Emblem from '../../components/Emblem.astro';
+import { regionPower, playersInRegion, playersByCampaign, fmtPower, fmtInt } from '../../lib/data';
+import type { RegionPower } from '../../lib/data';
+
+export function getStaticPaths() {
+  return regionPower.map((x) => ({ params: { region: String(x.region) }, props: { x } }));
+}
+
+const { x } = Astro.props as { x: RegionPower };
+const list = playersInRegion(x.region);
+const byStage = playersByCampaign.filter((p) => p.region === x.region);
+const stageRank = new Map(byStage.map((p, i) => [p, i + 1]));
+---
+<Layout title={`Region ${x.region} rankings`} description={`Eden Alliance players on servers ${x.servers}, ranked by power.`}>
+  <section class="page-head">
+    <span class="eyebrow">Rankings · Regions</span>
+    <h1>Region {x.region}</h1>
+    <p class="lede">Eden players on servers {x.servers}, ranked by power.</p>
+    <nav class="chips" aria-label="Regions">
+      <a class="chip" href="/regions/">All regions</a>
+      {[...regionPower].sort((a, b) => a.region - b.region).map((r) => <a class="chip" href={`/region/${r.region}/`} aria-current={r.region === x.region ? 'page' : undefined}>{r.region}</a>)}
+    </nav>
+  </section>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Players</span><span class="v">{fmtInt(x.players)}</span></div>
+    <div class="tile"><span class="k">Total power</span><span class="v">{fmtPower(x.total)}</span><span class="muted small">#{x.rank} of {regionPower.length} regions</span></div>
+    {x.strongest && <div class="tile"><span class="k">Strongest</span><span class="v">{fmtPower(x.strongest.power)}</span><span class="muted small">{x.strongest.name} · {x.strongest.guild}</span></div>}
+    {x.furthest?.campaign && <div class="tile"><span class="k">Furthest</span><span class="v">{x.furthest.campaign.text}</span><span class="muted small">{x.furthest.name} · {x.furthest.guild}</span></div>}
+  </div>
+
+  <section class="card">
+    <div class="controls">
+      <label class="sr" for="q">Find a player</label>
+      <input id="q" class="filter" type="search" placeholder="Player name or ID" autocomplete="off" />
+      <label class="sr" for="g">Guild</label>
+      <select id="g" class="filter sel">
+        <option value="">All guilds</option>
+        {x.guilds.map((g) => <option value={g.id}>{g.name}</option>)}
+      </select>
+    </div>
+    <div class="pager-row"><span class="muted small" id="count"></span><nav class="pager" data-pager aria-label="Pages"></nav></div>
+    <div class="table-wrap"><table class="data" id="t">
+      <thead><tr><th class="num">#</th><th>Player</th><th>Guild</th><th class="num">Server</th><th class="num">Power</th><th class="num hide-sm">Stage</th><th class="num hide-sm">Alliance #</th></tr></thead>
+      <tbody>
+        {list.map((p, i) => (
+          <tr hidden={i >= 100} data-g={p.guildRecord?.id ?? ''} data-text={`${p.name} ${p.id}`.toLowerCase()}>
+            <td class="num muted">{p.regionRank}</td>
+            <td class="pl">
+              {p.id ? <a href={`/player/${p.id}/`}>{p.name}</a> : <span>{p.name}</span>}
+              {p.role && <span class="role">{p.role}</span>}
+            </td>
+            <td><span class="gcell"><Emblem guild={p.guildRecord} size={20} />{p.guildRecord ? <a href={`/guild/${p.guildRecord.id}/`}>{p.guild}</a> : p.guild}</span></td>
+            <td class="num muted">S{p.server}</td>
+            <td class="num"><strong>{fmtPower(p.power)}</strong></td>
+            <td class="num hide-sm">{p.campaign ? <span title={`#${stageRank.get(p)} by stage in Region ${x.region}`}>{p.campaign.text}</span> : <span class="muted">—</span>}</td>
+            <td class="num hide-sm muted">{p.rank}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <div class="pager-row end"><nav class="pager" data-pager aria-label="Pages"></nav></div>
+    <p class="muted" id="none" hidden>No player matches that.</p>
+    <p class="muted small">Players are placed in a region by their server, whichever guild they're in. Alliance # is their place by power across all of Eden.</p>
+  </section>
+</Layout>
+
+<style>
+  .chips .chip { min-width: 2.2rem; justify-content: center; }
+  .controls { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .filter { flex: 1 1 220px; max-width: 360px; padding: .55rem .8rem; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+  .sel { flex: 0 1 200px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .pl a, .gcell a { text-decoration: none; }
+  .pl a { font-weight: 500; }
+  .pl a:hover, .gcell a:hover { text-decoration: underline; }
+  .gcell { display: inline-flex; align-items: center; gap: .4rem; }
+  .role { margin-left: .4rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-ink); }
+  @media (max-width: 560px) { .hide-sm { display: none; } td.pl { white-space: normal; overflow-wrap: anywhere; } }
+</style>
+
+<script>
+  import { setupRanking } from '../../scripts/ranking';
+  setupRanking();
+</script>

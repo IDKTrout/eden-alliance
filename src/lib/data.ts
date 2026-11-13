@@ -8,6 +8,7 @@ import abexCsv from '../data/web_abex.csv?raw';
 import riftCsv from '../data/web_rift.csv?raw';
 import formerNamesCsv from '../data/web_former_names.csv?raw';
 import playersCsv from '../data/web_players.csv?raw';
+import regionsCsv from '../data/regions.csv?raw';
 
 function parseCsv(text: string): Record<string, string>[] {
   const rows: string[][] = [];
@@ -424,6 +425,10 @@ export interface Player {
   /** Rank in the region's top 30 arena, or null. */
   arena: number | null;
   server: string;
+  /** Game region the server belongs to (from src/data/regions.csv), or null if unknown. */
+  region: number | null;
+  /** Place by power within the region. */
+  regionRank: number;
   /** Shown on the player card only. */
   language: string;
   /** Place by power across all Eden guilds (1 = strongest). */
@@ -451,6 +456,19 @@ const campaignValue = (v: string | undefined): Player['campaign'] => {
   return m ? { chapter: Number(m[1]), stage: Number(m[2]), text: `${Number(m[1])}-${Number(m[2])}` } : null;
 };
 
+// Server ranges for each game region (region 36 is servers 338-345). Kept by hand in src/data/regions.csv.
+const regionRanges = parseCsv(regionsCsv)
+  .map((r) => ({ region: Number(r.region), first: Number(r.first_server), last: Number(r.last_server) }))
+  .filter((r) => r.region && r.first && r.last);
+export const regionOfServer = (server: string | number): number | null => {
+  const n = Number(server);
+  return regionRanges.find((r) => n >= r.first && n <= r.last)?.region ?? null;
+};
+export const regionServers = (region: number) => {
+  const r = regionRanges.find((x) => x.region === region);
+  return r ? (r.first === r.last ? `S${r.first}` : `S${r.first}–S${r.last}`) : '';
+};
+
 const playerRows = parseCsv(playersCsv).filter((r) => r.name && r.guild);
 const idCount = new Map<string, number>();
 for (const r of playerRows) if (r.player_id) idCount.set(r.player_id, (idCount.get(r.player_id) ?? 0) + 1);
@@ -465,8 +483,8 @@ const ranked = playerRows
       name: tag ? r.name.slice(0, tag.index).trim() : r.name.trim(),
       role, guild, guildRecord: guildNamed(guild),
       power: powerValue(r.power), arena: num(r.arena),
-      server: r.server.replace(/^s/i, ''), language: r.language,
-      rank: 0, guildRank: 0,
+      server: r.server.replace(/^s/i, ''), region: regionOfServer(r.server.replace(/^s/i, '')), language: r.language,
+      rank: 0, guildRank: 0, regionRank: 0,
       campaign: campaignValue(r.campaign), campaignRank: null,
     } satisfies Player;
   })
@@ -474,6 +492,8 @@ const ranked = playerRows
 ranked.forEach((p, i) => { p.rank = i + 1; });
 const perGuild = new Map<string, number>();
 for (const p of ranked) { const n = (perGuild.get(p.guild) ?? 0) + 1; perGuild.set(p.guild, n); p.guildRank = n; }
+const perRegion = new Map<number, number>();
+for (const p of ranked) { if (p.region == null) continue; const n = (perRegion.get(p.region) ?? 0) + 1; perRegion.set(p.region, n); p.regionRank = n; }
 
 const campaignScore = (p: Player) => (p.campaign ? p.campaign.chapter * 1000 + p.campaign.stage : -1);
 /** Players with a campaign stage, furthest first; equal stages share a place. */
@@ -530,3 +550,38 @@ export const guildPower: GuildPower[] = activeGuilds
   .sort((a, b) => b.total - a.total);
 guildPower.forEach((x, i) => { x.rank = i + 1; });
 export const guildPowerOf = (g: Guild) => guildPower.find((x) => x.guild.id === g.id);
+
+// ---------- Regions (players grouped by the region of their server) ----------
+
+export interface RegionPower {
+  region: number;
+  servers: string;
+  players: number;
+  guilds: Guild[];
+  total: number;
+  average: number;
+  strongest?: Player;
+  furthest?: Player;
+  rank: number;
+}
+
+export const playersInRegion = (region: number) => players.filter((p) => p.region === region);
+
+/** Regions with Eden players, by total power, strongest first. */
+export const regionPower: RegionPower[] = [...new Set(players.map((p) => p.region).filter((r): r is number => r != null))]
+  .map((region) => {
+    const ms = playersInRegion(region);
+    const total = ms.reduce((s, p) => s + (p.power ?? 0), 0);
+    const guildIds = new Set(ms.map((p) => p.guildRecord?.id).filter(Boolean));
+    return {
+      region, servers: regionServers(region), players: ms.length,
+      guilds: activeGuilds.filter((g) => guildIds.has(g.id)),
+      total, average: ms.length ? total / ms.length : 0,
+      strongest: ms[0], furthest: playersByCampaign.find((p) => p.region === region), rank: 0,
+    };
+  })
+  .sort((a, b) => b.total - a.total);
+regionPower.forEach((x, i) => { x.rank = i + 1; });
+export const regionPowerOf = (region: number | null) => regionPower.find((x) => x.region === region);
+/** Players whose server isn't in the regions table. */
+export const playersWithoutRegion = players.filter((p) => p.region == null);

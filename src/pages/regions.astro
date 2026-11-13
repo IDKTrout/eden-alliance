@@ -1,0 +1,59 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Emblem from '../components/Emblem.astro';
+import { regionPower, playersWithoutRegion, fmtPower, fmtInt } from '../lib/data';
+
+const top = regionPower[0];
+const most = [...regionPower].sort((a, b) => b.players - a.players)[0];
+---
+<Layout title="Region rankings" description="Eden Alliance players grouped by game region and ranked by power.">
+  <section class="page-head">
+    <span class="eyebrow">Rankings</span>
+    <h1>Regions</h1>
+    <p class="lede">Every region with Eden players, ranked by the total power of the players whose server is in it.</p>
+    <nav class="chips" aria-label="Rankings">
+      <a class="chip" href="/power/">Power</a>
+      <a class="chip" href="/campaign/">Campaign</a>
+      <a class="chip" href="/regions/" aria-current="page">Regions</a>
+    </nav>
+  </section>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Regions</span><span class="v">{regionPower.length}</span></div>
+    {top && <a class="tile" href={`/region/${top.region}/`}><span class="k">Strongest</span><span class="v">Region {top.region}</span><span class="muted small">{fmtPower(top.total)} total</span></a>}
+    {most && <a class="tile" href={`/region/${most.region}/`}><span class="k">Most players</span><span class="v">Region {most.region}</span><span class="muted small">{fmtInt(most.players)} players</span></a>}
+  </div>
+
+  <section class="card">
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th class="num">#</th><th>Region</th><th class="num">Total power</th><th class="num">Players</th><th class="num hide-sm">Average</th><th class="hide-sm">Guilds</th><th class="hide-sm">Strongest</th><th class="num hide-sm">Furthest</th></tr></thead>
+      <tbody>
+        {regionPower.map((x) => (
+          <tr>
+            <td class="num muted">{x.rank}</td>
+            <td><a class="rlink" href={`/region/${x.region}/`}>Region {x.region}</a> <span class="muted small">{x.servers}</span></td>
+            <td class="num"><strong>{fmtPower(x.total)}</strong>
+              <span class="gbar" aria-hidden="true"><span style={`width:${(x.total / regionPower[0].total) * 100}%`}></span></span></td>
+            <td class="num">{x.players}</td>
+            <td class="num hide-sm">{fmtPower(x.average)}</td>
+            <td class="hide-sm"><span class="emblems">{x.guilds.map((g) => <a href={`/guild/${g.id}/`} title={g.name}><Emblem guild={g} size={20} /></a>)}</span></td>
+            <td class="hide-sm">{x.strongest && (x.strongest.id ? <a class="plink" href={`/player/${x.strongest.id}/`}>{x.strongest.name}</a> : x.strongest.name)} <span class="muted">{x.strongest && fmtPower(x.strongest.power)}</span></td>
+            <td class="num hide-sm">{x.furthest?.campaign?.text ?? '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="muted small">A player's region comes from their server. Guilds are shown in a region when any of their players' servers are in it, so a guild can appear in more than one.{playersWithoutRegion.length > 0 && ` ${playersWithoutRegion.length} player${playersWithoutRegion.length === 1 ? ' has' : 's have'} no server on the sheet, so they aren't in any region.`}</p>
+  </section>
+</Layout>
+
+<style>
+  .rlink, .plink { text-decoration: none; }
+  .rlink { font-weight: 600; }
+  .rlink:hover, .plink:hover { text-decoration: underline; }
+  .emblems { display: inline-flex; flex-wrap: wrap; gap: .2rem; white-space: normal; }
+  .emblems a { display: inline-flex; }
+  .gbar { display: block; height: 4px; margin-top: .25rem; margin-left: auto; width: 100%; min-width: 5rem; border-radius: 2px; background: var(--raised); overflow: hidden; }
+  .gbar span { display: block; height: 100%; border-radius: 2px; margin-left: auto; background: var(--accent); }
+  @media (max-width: 560px) { .hide-sm { display: none; } }
+</style>

@@ -11,7 +11,7 @@ const nav = [
   { href: `/expedition/${currentExpedition}/`, label: 'Expedition', match: (p: string) => p.startsWith('/expedition') },
   { href: `/abex/${seasonSlug(abexSeasons[0] ?? '')}/`, label: 'AbEx', match: (p: string) => p.startsWith('/abex') },
   { href: `/rift/${seasonSlug(riftSeasons[0] ?? '')}/`, label: 'Rift', match: (p: string) => p.startsWith('/rift') },
-  { href: '/power/', label: 'Power', match: (p: string) => p.startsWith('/power') || p.startsWith('/player/') },
+  { href: '/power/', label: 'Power', match: (p: string) => p.startsWith('/power') || p.startsWith('/player/') || p.startsWith('/region') },
   { href: '/campaign/', label: 'Campaign', match: (p: string) => p.startsWith('/campaign') },
 ];
 ---
