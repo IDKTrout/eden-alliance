@@ -3294,7 +3294,7 @@ S13,Pride,A,2
 S13,UnderDawg,B,8
 S13,UnderDawg,B,8
 S13,UnderDawg,B,8
-S13,UnderDawg,B,3
+S13,UnderDawg,B,
 S13,UnderDawg,B,5
 S13,UnderDawg,B,8
 S13,UnderDawg,B,3
@@ -3338,15 +3338,15 @@ S13,Moon Sword,C,2
 S13,Moon Sword,NE,
 S13,Moon Sword,C,12
 S13,Moon Sword,C,1
-S13,Moon Sword,,
+S13,Moon Sword,S,
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
-S13,Moon Sword,,
+S13,Moon Sword,S,
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
 S13,Moon Sword,NE,
-S13,Moon Sword,,
+S13,Moon Sword,S,
 S13,Moon Sword,C,2
 S13,Moon Sword,C,12
 S13,Moon Sword,C,2
@@ -3362,7 +3362,7 @@ S13,Moon Sword,C,12
 S13,Moon Sword,NE,
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
-S13,Moon Sword,,
+S13,Moon Sword,S,
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
@@ -3370,10 +3370,10 @@ S13,Moon Sword,C,12
 S13,Moon Sword,C,1
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
-S13,Moon Sword,,
+S13,Moon Sword,S,
 S13,Moon Sword,C,12
 S13,Moon Sword,C,12
-S13,Moon Sword,,
+S13,Moon Sword,S,
 S13,Moon Sword,C,2
 S13,Moon Sword,C,2
 S13,Moon Sword,NE,
@@ -3619,28 +3619,6 @@ S13,StarSky,,
 S13,StarSky,,
 S13,StarSky,,
 S13,StarSky,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
-S13,Hades,,
 S13,6,A,9
 S13,6,B,3
 S13,6,A,9
