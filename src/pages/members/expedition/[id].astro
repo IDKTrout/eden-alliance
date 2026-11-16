@@ -1,0 +1,30 @@
+---
+// Members-only: the Worker (src/worker.js) serves everything under /members/ to approved,
+// logged-in Discord accounts only. The data comes from the private file written at build time.
+import Layout from '../../../layouts/Layout.astro';
+import ExpeditionView from '../../../components/ExpeditionView.astro';
+import { currentExpedition, hasMembersData } from '../../../lib/data';
+
+export function getStaticPaths() {
+  return currentExpedition ? [{ params: { id: currentExpedition } }] : [];
+}
+const { id } = Astro.params as { id: string };
+---
+<Layout title={`Expedition ${id}`} description={`Expedition ${id} for Eden members.`} noindex>
+  <ExpeditionView id={id}>
+    <p slot="head" class="members-bar small"><span class="lock" aria-hidden="true">🔒</span> Members only<span id="who"></span> · <a href="/auth/logout">Log out</a></p>
+  </ExpeditionView>
+  {!hasMembersData && <section class="card"><p class="muted">The members data for Expedition {id} wasn't loaded in this build.</p></section>}
+</Layout>
+
+<script>
+  fetch('/auth/me', { credentials: 'same-origin', cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((me) => { const el = document.getElementById('who'); if (el && me?.name) el.textContent = ` · logged in as ${me.name}`; })
+    .catch(() => {});
+</script>
+
+<style>
+  .members-bar { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .3rem; align-self: flex-start; padding: .3rem .7rem; border-radius: 999px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .members-bar a { color: var(--accent-ink); font-weight: 600; }
+</style>

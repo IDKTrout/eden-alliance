@@ -65,3 +65,21 @@ Two Workers projects, both connected to this repository (Workers & Pages → Cre
 | Config | `wrangler.jsonc` | `home/wrangler.jsonc` |
 | Custom domain | `alliance.edenafk.com` | `edenafk.com` (and `www.edenafk.com`) |
 | Build watch paths | exclude `home/*` | include `home/*` only |
+
+## Members-only: the current expedition
+
+While an expedition is being played, its maps and leagues are only shown to approved members at
+`/members/expedition/<id>/`. Everyone else sees a "Members only" page with a Discord login.
+Finished expeditions stay public.
+
+- **Data.** The public `web_expeditions` tab leaves out the current expedition (`Lists!I2`), and
+  `fetch-data.mjs` drops any of its rows as a second guard. The members rows come from a private
+  Apps Script web app (`scripts/apps-script/members-data.gs`). `scripts/fetch-private.mjs` downloads
+  them before each build into `src/data/private/`, which is gitignored. Only a fingerprint
+  (`src/data/members-stamp.txt`) is committed, so changes still trigger a rebuild.
+- **Login.** `src/worker.js` runs for `/members/*` and `/auth/*`. It logs people in with Discord,
+  keeps a signed cookie for 7 days, and lets in the Discord IDs in `ALLOWED_DISCORD_IDS`. Setting
+  `DISCORD_GUILD_ID` and `ALLOWED_ROLE_IDS` also lets in anyone with one of those server roles.
+- **Secrets.** Cloudflare Worker secrets: `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`,
+  `SESSION_SECRET`, `ALLOWED_DISCORD_IDS` (and the two role settings later). Cloudflare build
+  secret and GitHub repository secret: `MEMBERS_DATA_URL`. None of these go in the repo.

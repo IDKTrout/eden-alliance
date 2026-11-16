@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Not on the list" description="This Discord account isn't approved for members-only pages." noindex>
+  <section class="card gate">
+    <h1>Not on the list yet</h1>
+    <p class="muted">You're logged in<span id="who"></span>, but this Discord account isn't approved for members-only pages. If you think it should be, contact <a href="https://discord.com/users/224930060694585345" target="_blank" rel="noopener">IDKTrout</a> on Discord.</p>
+    <p class="small"><a href="/auth/logout">Log out</a> · <a href="/">Back to the guilds</a></p>
+  </section>
+</Layout>
+
+<script>
+  fetch('/auth/me', { credentials: 'same-origin', cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((me) => { const el = document.getElementById('who'); if (el && me?.name) el.textContent = ` as ${me.name}`; })
+    .catch(() => {});
+</script>
+
+<style>
+  .gate { align-items: center; text-align: center; padding-block: 2.5rem; max-width: 560px; margin-inline: auto; width: 100%; }
+  .gate h1 { font-size: 1.8rem; }
+  .gate a { color: var(--accent-ink); font-weight: 600; }
+</style>

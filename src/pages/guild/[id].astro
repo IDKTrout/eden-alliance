@@ -9,17 +9,8 @@ export function getStaticPaths() {
 }
 const { g } = Astro.props as { g: Guild };
 const history = guildHistory(g);
-const current = history.find((h) => h.id === currentExpedition)?.entry;
 const abexRows = abexSeasons.flatMap((s) => abex.filter((r) => r.season === s && r.guildRecord?.id === g.id));
 const riftRows = riftSeasons.flatMap((s) => rift.filter((r) => r.season === s && r.guildRecord?.id === g.id).sort((a, b) => (a.place ?? 1e9) - (b.place ?? 1e9)));
-// This guild's leagues in the current expedition, with the other guilds in the same map and league.
-const myLeagues = current
-  ? current.leagues.map((t) => {
-      const { map, league } = splitLeague(t.key);
-      const group = leagueGroups(currentExpedition).find((m) => m.map === map)?.groups.find((x) => x.league === league);
-      return { map, league, count: t.count, others: (group?.guilds ?? []).filter((x) => x.guildRecord?.id !== g.id) };
-    }).sort((a, b) => b.count - a.count)
-  : [];
 const members = playersIn(g);
 const gp = guildPowerOf(g);
 const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.id !== g.id);
@@ -73,26 +64,10 @@ const sameRegion = guilds.filter((o) => o.active && o.region === g.region && o.i
     </section>
   )}
 
-  {current && (
-    <section class="card">
+  {currentExpedition && (
+    <section class="card members-card">
       <h2>Expedition {currentExpedition}</h2>
-      <p class="muted small">{current.mapped} of {current.players} players have a map entered ({pct(current.mapped, current.players)}%). <a href={`/expedition/${currentExpedition}/`}>All guilds →</a></p>
-      <div class="bars">
-        <span class="bl">Maps</span><StackBar parts={current.maps} total={current.players} color={mapColor} label={mapLabel} />
-      </div>
-      {myLeagues.length > 0 && (
-        <ul class="myleagues">
-          {myLeagues.map((l) => (
-            <li>
-              <span class="pill" style={`background:${mapColor(l.map)};color:${inkOn(mapColor(l.map))}`}>{l.map}</span>
-              <span class="pill" style={`background:${leagueColor(l.league)};color:${inkOn(leagueColor(l.league))}`}>{l.league}</span>
-              <span><b>Map {l.map}, League {l.league}</b>: {l.count} player{l.count === 1 ? '' : 's'}{l.others.length > 0
-                ? <span class="muted">, with {l.others.map((o, i) => <>{i > 0 && ', '}{o.guildRecord ? <a href={`/guild/${o.guildRecord.id}/`}>{o.guild}</a> : o.guild} ({o.count})</>)}</span>
-                : <span class="muted">, no other Eden guild</span>}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <p class="muted small">Where {g.name}'s players are placed this expedition is shown to approved members only. <a href={`/expedition/${currentExpedition}/`}>Members page →</a></p>
     </section>
   )}
 

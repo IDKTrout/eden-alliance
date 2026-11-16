@@ -1,9 +1,16 @@
 // Cloudflare Workers Builds config for alliance.edenafk.com: serves the Astro build in dist/.
+// Static pages are served directly; /members/* and /auth/* run src/worker.js first, which handles
+// the Discord login and keeps members-only pages private. Its settings are Cloudflare secrets
+// (listed at the top of src/worker.js), never in this file.
 {
   "name": "eden-alliance",
+  "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
+  "keep_vars": true,
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/members/*", "/members", "/auth/*"]
   }
 }

@@ -1,4 +1,5 @@
-# Downloads the published web_* tabs of the alliance sheet and commits any changes to src/data/.
+# Downloads the published web_* tabs of the alliance sheet and commits any changes to src/data/
+# (plus a fingerprint of the members-only data, so changes there rebuild the site too).
 # Each commit makes Cloudflare rebuild alliance.edenafk.com with the new data.
 name: Refresh sheet data
 
@@ -24,6 +25,12 @@ jobs:
           node-version-file: .nvmrc
       - name: Download sheet data
         run: node scripts/fetch-data.mjs
+      - name: Check the members-only data for changes
+        # Saves only a fingerprint (src/data/members-stamp.txt), never the rows, so a change in the
+        # current expedition still triggers a rebuild. Needs the MEMBERS_DATA_URL repository secret.
+        env:
+          MEMBERS_DATA_URL: ${{ secrets.MEMBERS_DATA_URL }}
+        run: node scripts/fetch-private.mjs --stamp
       - name: Commit if anything changed
         run: |
           if git diff --quiet -- src/data; then

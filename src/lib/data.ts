@@ -188,7 +188,15 @@ const stillActiveIn = (guild: string, expedition: string) => {
   return from == null || seasonNum(expedition) < from;
 };
 
-const expRows: ExpRow[] = parseCsv(expeditionsCsv)
+// The current expedition is members-only. Its rows never come from the public web_expeditions tab
+// (fetch-data drops them, and the tab's formula leaves them out); they come from
+// src/data/private/current_expedition.csv, which scripts/fetch-private.mjs writes at build time
+// from a private Apps Script link. That file is gitignored, and its rows are only used on the
+// /members/ pages, which the Worker (src/worker.js) serves to logged-in members only.
+const privateFiles = import.meta.glob('../data/private/current_expedition.csv', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const privateCsv = Object.values(privateFiles)[0] ?? '';
+
+const toExpRows = (csv: string): ExpRow[] => parseCsv(csv)
   .filter((r) => r.expedition && r.guild && stillActiveIn(currentName(r.guild), r.expedition))
   .map((r) => ({
     expedition: r.expedition.toUpperCase(),
@@ -198,15 +206,26 @@ const expRows: ExpRow[] = parseCsv(expeditionsCsv)
     league: isBlank(r.league) ? '' : r.league,
   }));
 
+const allPublicRows = toExpRows(expeditionsCsv);
+const publicIds = [...new Set(allPublicRows.map((r) => r.expedition))].sort((a, b) => seasonNum(a) - seasonNum(b));
+
+/** The expedition being played now (web_settings current_expedition). Its data is members-only. */
+export const currentExpedition = (settings.current_expedition ?? '').trim().toUpperCase() || publicIds[publicIds.length - 1] || '';
+
+const publicRows = allPublicRows.filter((r) => r.expedition !== currentExpedition);
+const membersRows = toExpRows(privateCsv).filter((r) => r.expedition === currentExpedition);
+/** True when this build has the members-only rows for the current expedition. */
+export const hasMembersData = membersRows.length > 0;
+const rowsFor = (id: string) => (id === currentExpedition ? membersRows : publicRows.filter((r) => r.expedition === id));
+
 /** Expedition data before this season may not be accurate; those pages carry a note. */
 export const ACCURATE_FROM = 13;
 export const mayBeInaccurate = (id: string) => seasonNum(id) < ACCURATE_FROM;
 export const ACCURACY_NOTE = `Seasons before ${ACCURATE_FROM} may not be accurate.`;
-export const expeditionIds = [...new Set(expRows.map((r) => r.expedition))].sort((a, b) => seasonNum(a) - seasonNum(b));
-export const currentExpedition =
-  settings.current_expedition && expeditionIds.includes(settings.current_expedition.toUpperCase())
-    ? settings.current_expedition.toUpperCase()
-    : expeditionIds[expeditionIds.length - 1] ?? '';
+/** Every expedition, oldest first, including the current (members-only) one. */
+export const expeditionIds = [...new Set([...publicIds.filter((e) => e !== currentExpedition), currentExpedition].filter(Boolean))].sort((a, b) => seasonNum(a) - seasonNum(b));
+/** Finished expeditions, whose data is public. */
+export const pastExpeditionIds = expeditionIds.filter((e) => e !== currentExpedition);
 
 export interface Tally { key: string; count: number }
 export interface GuildExpedition {
@@ -243,7 +262,7 @@ const leagueOrder = Object.keys(LEAGUES);
 const leagueKeyOrder = mapOrder.flatMap((m) => leagueOrder.map((l) => `${m}·${l}`));
 
 export function expedition(id: string): GuildExpedition[] {
-  const rows = expRows.filter((r) => r.expedition === id);
+  const rows = rowsFor(id);
   const byGuild = new Map<string, ExpRow[]>();
   for (const r of rows) byGuild.set(r.guild, [...(byGuild.get(r.guild) ?? []), r]);
   return [...byGuild].map(([guild, rs]) => {
@@ -273,7 +292,7 @@ export interface LeagueGroup {
 
 /** Who is together: one group per map and league, with the guilds in it, in the sheet's map/league order. */
 export function leagueGroups(id: string): { map: string; groups: LeagueGroup[] }[] {
-  const rows = expRows.filter((r) => r.expedition === id && r.map && !NO_LEAGUE_MAPS.has(r.map));
+  const rows = rowsFor(id).filter((r) => r.map && !NO_LEAGUE_MAPS.has(r.map));
   const byKey = new Map<string, ExpRow[]>();
   for (const r of rows) {
     const k = `${r.map}·${r.league}`;
@@ -302,8 +321,9 @@ export function keysUsed(list: GuildExpedition[], field: 'maps' | 'leagues'): st
   return tally(list.flatMap((g) => g[field].flatMap((t) => Array(t.count).fill(t.key))), order).map((t) => t.key);
 }
 
+/** A guild's finished expeditions, newest first (the current one is members-only). */
 export function guildHistory(g: Guild) {
-  return expeditionIds
+  return pastExpeditionIds
     .map((id) => ({ id, entry: expedition(id).find((e) => e.guildRecord?.id === g.id) }))
     .filter((x): x is { id: string; entry: GuildExpedition } => !!x.entry)
     .reverse();

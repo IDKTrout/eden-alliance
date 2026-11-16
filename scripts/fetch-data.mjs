@@ -62,6 +62,22 @@ for (const [tab, gid] of Object.entries(TABS)) {
   }
 }
 
+// The current expedition is members-only: make sure none of its rows are saved here, even if the
+// sheet's web_expeditions tab still includes them. (Members get them from fetch-private.mjs.)
+try {
+  const settings = await readFile(new URL('web_settings.csv', dataDir), 'utf8');
+  const current = (/^current_expedition,\s*"?([^",\n]+)/m.exec(settings)?.[1] ?? '').trim().toUpperCase();
+  const expFile = new URL('web_expeditions.csv', dataDir);
+  const lines = (await readFile(expFile, 'utf8')).split('\n');
+  if (current) {
+    const kept = lines.filter((l, i) => i === 0 || l.split(',')[0].replace(/"/g, '').trim().toUpperCase() !== current);
+    if (kept.length !== lines.length) console.log(`[data] web_expeditions: left out ${lines.length - kept.length} rows of ${current} (members-only)`);
+    await writeFile(expFile, kept.join('\n'));
+  }
+} catch (err) {
+  console.warn(`[data] Could not check web_expeditions for the current expedition (${err.message})`);
+}
+
 if (failed) {
   console.error(`[data] ${failed} tab(s) have no data at all. Publish the web_* tabs and set SHEET_PUB_ID.`);
   process.exit(1);
