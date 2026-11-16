@@ -11,7 +11,9 @@
 //  4. The web app URL + "?key=" + MEMBERS_KEY is the MEMBERS_DATA_URL secret for Cloudflare and GitHub.
 // After editing this code later: Deploy -> Manage deployments -> edit -> Version: New version.
 
-var SHEET_ID = '1WvHbO_yMP_Rl4ji_iD6omYogrt1kDkKgy__SZRY7gJQ';
+// The alliance sheet's ID (the long part of its address) is kept out of this public file:
+// replace PASTE_SHEET_ID_HERE when pasting this into Apps Script.
+var SHEET_ID = 'PASTE_SHEET_ID_HERE';
 
 function doGet(e) {
   var key = PropertiesService.getScriptProperties().getProperty('MEMBERS_KEY');
