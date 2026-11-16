@@ -33,7 +33,7 @@ jobs:
         run: node scripts/fetch-private.mjs --stamp
       - name: Commit if anything changed
         run: |
-          if git diff --quiet -- src/data; then
+          if [ -z "$(git status --porcelain -- src/data)" ]; then
             echo "Sheet data unchanged."
             exit 0
           fi
