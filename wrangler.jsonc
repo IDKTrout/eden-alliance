@@ -7,6 +7,8 @@
   "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
   "keep_vars": true,
+  // Starts the sheet data refresh on GitHub every 3 hours (see scheduled() in src/worker.js).
+  "triggers": { "crons": ["23 */3 * * *"] },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

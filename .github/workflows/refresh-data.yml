@@ -5,7 +5,7 @@ name: Refresh sheet data
 
 on:
   schedule:
-    - cron: '23 */3 * * *'   # every 3 hours
+    - cron: '23 */3 * * *'   # every 3 hours (a backup: Cloudflare starts this on time too, see src/worker.js)
   workflow_dispatch: {}      # "Run workflow" button on GitHub, for an immediate update
 
 permissions:

@@ -11,6 +11,8 @@
 //   DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET   from the Discord application (OAuth2 page)
 //   SESSION_SECRET                             any long random string; signs the login cookie
 //   ALLOWED_DISCORD_IDS                        Discord user IDs allowed in, separated by commas
+//   GITHUB_DISPATCH_TOKEN                      GitHub token that may start this repo's workflows
+//                                              (used by the 3-hourly timer below)
 // Optional, for role-based access later (both needed to turn it on):
 //   DISCORD_GUILD_ID                           the Eden Discord server ID
 //   ALLOWED_ROLE_IDS                           role IDs allowed in, separated by commas
@@ -32,7 +34,32 @@ export default {
     }
     return env.ASSETS.fetch(request);
   },
+
+  // Every 3 hours (triggers.crons in wrangler.jsonc): ask GitHub to run the "Refresh sheet data"
+  // workflow. GitHub's own schedule often runs hours late or skips runs; Cloudflare's timer doesn't.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(startRefresh(env));
+  },
 };
+
+async function startRefresh(env) {
+  if (!env.GITHUB_DISPATCH_TOKEN) {
+    console.warn('GITHUB_DISPATCH_TOKEN is not set; skipping the data refresh');
+    return;
+  }
+  const res = await fetch('https://api.github.com/repos/IDKTrout/eden-alliance/actions/workflows/refresh-data.yml/dispatches', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.GITHUB_DISPATCH_TOKEN}`,
+      accept: 'application/vnd.github+json',
+      'x-github-api-version': '2022-11-28',
+      'user-agent': 'eden-alliance-refresh',
+    },
+    body: JSON.stringify({ ref: 'main' }),
+  });
+  if (res.status === 204) console.log('Started the data refresh on GitHub');
+  else console.error(`Could not start the data refresh: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
+}
 
 // ---------- members pages ----------
 
